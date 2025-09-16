@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, View, Button, Alert } from "react-native";
+import { View, Text, Button, Image, StyleSheet } from "react-native";
 
 export default function Index() {
   const [count, setCount] = useState(0);
@@ -8,9 +8,9 @@ export default function Index() {
   const [balls, setBalls] = useState(0);
 
   const handleStrike = () => {
-    const newStrikes = strikes + 1; 
+    const newStrikes = strikes + 1;
     setStrikes(newStrikes);
-
+    setCount(count + 1);
     if (newStrikes === 3) {
       handleOut();
       setStrikes(0);
@@ -20,23 +20,28 @@ export default function Index() {
   const handleOut = () => {
     const newOuts = outs + 1;
     setOuts(newOuts);
+    setCount(count + 1);
     if (newOuts === 3) {
-    setStrikes(0);
-    setBalls(0);
-    setOuts(0);
+      setStrikes(0);
+      setBalls(0);
+      setOuts(0);
     }
-    };
+  };
+
   const handleBall = () => {
     const newBalls = balls + 1;
     setBalls(newBalls);
+    setCount(count + 1);
     if (newBalls === 4) {
-    setStrikes(0);
-    setBalls(0);
+      setStrikes(0);
+      setBalls(0);
     }
-  }
-  
+  };
 
   return (
+
+// I am at a loss why all of this is showing errors or why the image is not working.
+
     <View
       style={{
         flex: 1,
@@ -44,6 +49,11 @@ export default function Index() {
         alignItems: "center",
       }}
     >
+      {/* <Image
+        source={require("./assets/images/BaseballField_E.png")} 
+        style={{ width: 200, height: 200, marginBottom: 20 }}
+      /> */}
+
       <Text>Pitch Count: {count}</Text>
       <Text style={{ fontSize: 24 }}>Strikes: {'⚾'.repeat(strikes)}</Text>
       <Text style={{ fontSize: 24 }}>Balls: {'⚾'.repeat(balls)}</Text>
@@ -56,9 +66,9 @@ export default function Index() {
         title="reset"
         onPress={() => {
           setCount(0);
-          balls = 0;
-          strikes = 0;
-          outs = 0;
+          setBalls(0);
+          setStrikes(0);
+          setOuts(0);
         }}
       />
     </View>
