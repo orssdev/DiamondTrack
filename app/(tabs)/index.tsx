@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { View, Text, Button, Image, StyleSheet } from "react-native";
+import { Link } from "expo-router";
 
 export default function Index() {
   const [count, setCount] = useState(0);
   const [strikes, setStrikes] = useState(0);
   const [outs, setOuts] = useState(0);
   const [balls, setBalls] = useState(0);
+  
 
   const handleStrike = () => {
     const newStrikes = strikes + 1;
@@ -43,21 +45,18 @@ export default function Index() {
 // I am at a loss why all of this is showing errors or why the image is not working.
 
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      style={styles.container}
     >
-      {/* <Image
-        source={require("./assets/images/BaseballField_E.png")} 
-        style={{ width: 200, height: 200, marginBottom: 20 }}
-      /> */}
+       <Image
+            source={require("../../assets/images/BaseballField_E.png")}
+            style={{width: 200, height: 200, marginBottom: 20}}
+        />
 
       <Text>Pitch Count: {count}</Text>
-      <Text style={{ fontSize: 24 }}>Strikes: {'⚾'.repeat(strikes)}</Text>
-      <Text style={{ fontSize: 24 }}>Balls: {'⚾'.repeat(balls)}</Text>
-      <Text style={{ fontSize: 24 }}>Outs: {'⚾'.repeat(outs)}</Text>
+      <Text style={styles.Text}>Strikes: {'⚾'.repeat(strikes)}</Text>
+      <Text style={styles.Text}>Balls: {'⚾'.repeat(balls)}</Text>
+      <Text style={styles.Text}>Outs: {'⚾'.repeat(outs)}</Text>
+      <Text style={{fontSize: 24, color: '#ffffff'}}>Oscar is a big loser</Text>
 
       <Button title="Strike" onPress={handleStrike} />
       <Button title="Ball" onPress={handleBall} />
@@ -74,3 +73,21 @@ export default function Index() {
     </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#ffffff"
+  },
+  Text: {
+    fontSize: 24
+  },
+  button: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    color: '#000000',
+  }
+})
