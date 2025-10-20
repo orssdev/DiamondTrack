@@ -1,12 +1,27 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useNavigation, usePathname } from 'expo-router';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useEffect } from 'react';
 
 
 export default function TabLayout() {
+  const navigation = useNavigation();
+  const pathname = usePathname();
+  
+  useEffect(() => {
+    // Map pathname to header title
+    let title = 'Diamond Track';
+    if (pathname.endsWith('/')) title = 'Game';
+    else if (pathname.endsWith('/about')) title = 'About';
+    else if (pathname.endsWith('/stats')) title = 'Stats';
+
+    navigation.setOptions({ headerTitle: title });
+  }, [pathname]);
+
   return (
     <Tabs
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: '#ffd33d',
       }}
     >
