@@ -56,7 +56,7 @@ export default function Index() {
       <Text style={styles.Text}>Strikes: {'⚾'.repeat(strikes)}</Text>
       <Text style={styles.Text}>Balls: {'⚾'.repeat(balls)}</Text>
       <Text style={styles.Text}>Outs: {'⚾'.repeat(outs)}</Text>
-      <Text style={{fontSize: 24, color: '#ffffff'}}>Oscar is a big loser</Text>
+      <Text style={{fontSize: 24, color: '#fefbfbff'}}>Oscar is a big loser</Text>
 
       <Button title="Strike" onPress={handleStrike} />
       <Button title="Ball" onPress={handleBall} />

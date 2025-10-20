@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "212553812085",
+    "project_id": "diamondtrack-8",
+    "storage_bucket": "diamondtrack-8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212553812085:android:2adb7dc4eeedbf9bb3d03c",
+        "android_client_info": {
+          "package_name": "com.wa2goose.DiamondTrack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX5hV1DWW-UyalPTTE4w63M4aQxt2rmtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
