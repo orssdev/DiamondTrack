@@ -5,6 +5,7 @@ import { ref, onValue, query, orderByChild, equalTo, DatabaseReference, DataSnap
 import { db } from '../../firebaseConfig';
 import AddLeagueModal from '../components/addLeagueModal';
 import AddTeamModal from '../components/addTeamModal';
+import { Double } from 'react-native/Libraries/Types/CodegenTypes';
 
 interface League {
   id: string;
@@ -19,8 +20,8 @@ interface Team {
   name: string;
   record: {
     wins: number;
-    losses: number; // Corrected from 'loses'
-    ties: number;   // Added for complete record
+    losses: number; 
+    ties: number;
   }
 }
 
@@ -30,6 +31,10 @@ interface Player {
   number: number;
   teamId: string;
   position: string;
+  stats: {
+    battingAverage: number;
+    plateAppearences: number;
+  }
 }
 
 export default function StatsScreen() {
