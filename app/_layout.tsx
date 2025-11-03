@@ -12,7 +12,14 @@ export default function RootLayout() {
         headerTitle: "Start Menu",
         headerStyle: { backgroundColor: "#071524" },
         headerTintColor: "#34D399",
-        headerTitleStyle: { color: "#E6EEF7" }
+        headerTitleStyle: { color: "#E6EEF7" },
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => console.log("Menu pressed")}> 
+            <View style={styles.menuContainer}>
+              <Ionicons name="menu" size={28} color="#34D399" />
+            </View>
+          </TouchableOpacity>
+        ),
       }}
       />
       <Stack.Screen
