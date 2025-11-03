@@ -1,4 +1,6 @@
 import { useRouter } from 'expo-router';
+import { on as onEvent, emit } from './utils/events';
+import { Modal, TouchableWithoutFeedback } from 'react-native';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -15,6 +17,14 @@ export default function StartScreen() {
 	const [awayTeam, setAwayTeam] = useState<string>('');
 
 	const router = useRouter();
+		const [showMenu, setShowMenu] = useState<boolean>(false);
+
+		useEffect(() => {
+			const unsub = onEvent('openMenu', (payload) => {
+				if (payload === 'start') setShowMenu(true);
+			});
+			return unsub;
+		}, []);
 
 	useEffect(() => {
 		const leaguesRef = ref(db, 'leagues');
@@ -63,6 +73,22 @@ export default function StartScreen() {
 				<Text style={styles.startButtonText}>START</Text>
 			</TouchableOpacity>
 
+			<Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
+				<TouchableWithoutFeedback onPress={() => setShowMenu(false)}>
+					<View style={{flex:1, backgroundColor:'rgba(0,0,0,0.4)'}} />
+				</TouchableWithoutFeedback>
+				<View style={{position:'absolute', top:60, right:12}}>
+					<View style={{backgroundColor:'#071524', padding:12, borderRadius:8}}>
+						<TouchableOpacity onPress={() => { setShowMenu(false); /* reset game - no-op here */ }} style={{padding:8}}>
+							<Text style={{color:'#fff'}}>Reset Game</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => { setShowMenu(false); router.push('/stats'); }} style={{padding:8}}>
+							<Text style={{color:'#fff'}}>Stats</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+			</Modal>
+
 			{/* Footer logo at bottom */}
 			<TouchableOpacity style={styles.footer} onPress={() => console.log('Logo pressed')} activeOpacity={0.8}>
 				<Text style={styles.footerText}>DiamondTrack ⚾</Text>
@@ -108,7 +134,7 @@ const styles = StyleSheet.create({
 		paddingBottom: 8,
 	},
 	footerText: {
-		fontSize: 32,
+		fontSize: 30,
 		color: '#34D399',
 		fontWeight: '800',
 		letterSpacing: 0.8,

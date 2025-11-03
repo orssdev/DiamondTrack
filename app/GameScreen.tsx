@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../firebaseConfig';
-import {
+import { 
   Dimensions,
   Image,
   StyleSheet,
@@ -10,10 +10,13 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Modal,
   FlatList,
+  Modal,
+  Alert,
   TouchableWithoutFeedback,
 } from "react-native";
+import StatsSheet from './components/StatsSheet';
+import { on as onEvent } from './utils/events';
 
 const { width, height } = Dimensions.get("window");
 
@@ -41,6 +44,14 @@ export default function GameScreen() {
     const [history, setHistory] = useState<Array<any>>([]);
 
     const [showOutcomeModal, setShowOutcomeModal] = useState<boolean>(false);
+      const [showStatsSheet, setShowStatsSheet] = useState<boolean>(false);
+      const [showHeaderMenu, setShowHeaderMenu] = useState<boolean>(false);
+    // runner confirmation modal state
+    const [pendingRunnerPrompts, setPendingRunnerPrompts] = useState<Array<'first'|'second'|'third'>>([]);
+    const [pendingOutcomeResult, setPendingOutcomeResult] = useState<OutcomeResult | null>(null);
+    const [pendingPreRunners, setPendingPreRunners] = useState<RunnerState | null>(null);
+    const [currentPromptIndex, setCurrentPromptIndex] = useState<number>(0);
+    const router = useRouter();
 
     // field images map (key: first-second-third)
     const fieldImages: Record<string, any> = {
@@ -81,6 +92,50 @@ export default function GameScreen() {
   
       return () => { unsubHome(); unsubAway(); };
     }, [homeId, awayId]);
+
+    useEffect(() => {
+      const unsub = onEvent('openMenu', (payload) => {
+        if (payload === 'game') setShowHeaderMenu(true);
+      });
+      return unsub;
+    }, []);
+
+    // current batter slot and display name
+    const [currentBatSlot, setCurrentBatSlot] = useState<number>(1);
+    const [currentBatterDisplay, setCurrentBatterDisplay] = useState<string>('');
+
+    useEffect(() => {
+      const battingTeamId = isTop ? awayId : homeId;
+      if (!battingTeamId) { setCurrentBatterDisplay(''); return; }
+      // read lineup slot -> playerId, then fetch player name
+      const slotRef = ref(db, `Teams/${battingTeamId}/lineup/${currentBatSlot}`);
+      const unsubSlot = onValue(slotRef, async (snap) => {
+        const pid = snap.val();
+        if (!pid) { setCurrentBatterDisplay(`${currentBatSlot}. (empty)`); return; }
+        const pSnapRef = ref(db, `Players/${pid}`);
+        const unsubP = onValue(pSnapRef, (psnap) => {
+          const p = psnap.val();
+          if (p) setCurrentBatterDisplay(`${currentBatSlot}. ${p.name}, ${p.position ?? ''} #${p.number ?? ''}`);
+          else setCurrentBatterDisplay(`${currentBatSlot}. Unknown`);
+        });
+        // cleanup inner subscription when pid changes
+      });
+      return () => { unsubSlot(); };
+    }, [homeId, awayId, isTop, currentBatSlot]);
+
+    const handleRestartGame = () => {
+      // reset only the in-memory game state
+      setHomeRuns(0); setAwayRuns(0); setInning(1); setIsTop(true); setBalls(0); setStrikes(0); setOuts(0); setRunners({ first:false, second:false, third:false });
+      setShowHeaderMenu(false);
+    };
+
+
+    const handleEndGame = () => {
+      Alert.alert('Confirm end game','This will finalize the game and apply stats to players. Proceed?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'End Game', style: 'default', onPress: () => { {router.push('/start'); } setShowHeaderMenu(false); } }
+      ]);
+    };
   
     if (loading) return <View style={styles.centered}><ActivityIndicator /></View>;
 
@@ -177,21 +232,44 @@ export default function GameScreen() {
       if (!outcome) return;
       pushHistory();
       const result = outcome.effect({ balls, strikes, outs, runners });
+
+      // if the outcome doesn't change runner occupancy for any pre-existing runner, apply immediately
+      const pre = runners;
+      const post = result.runners;
+      const toPrompt: Array<'first'|'second'|'third'> = [];
+      (['first','second','third'] as Array<'first'|'second'|'third'>).forEach((base) => {
+        if (pre[base] && pre[base] !== post[base]) {
+          toPrompt.push(base);
+        }
+      });
+
+      if (toPrompt.length === 0) {
+        // no prompts necessary
+        commitOutcomeResult(result);
+      } else {
+        // queue prompts
+        setPendingPreRunners(pre);
+        setPendingOutcomeResult(result);
+        setPendingRunnerPrompts(toPrompt);
+        setCurrentPromptIndex(0);
+        // open a focused runner prompt modal by reusing showOutcomeModal area
+        setShowOutcomeModal(false);
+      }
+    };
+
+    // commit final result to state (runs, runners, counts, half-inning advances)
+    const commitOutcomeResult = (result: OutcomeResult) => {
       setBalls(result.balls);
       setStrikes(result.strikes);
       setOuts(result.outs);
-      // apply runs
       if (result.runsScored && result.runsScored > 0) {
         if (isTop) setAwayRuns(r => r + result.runsScored);
         else setHomeRuns(r => r + result.runsScored);
       }
-      // update runners
       setRunners(result.runners);
       setShowOutcomeModal(false);
 
-      // if outs reached 3, advance half inning and reset counts/runners
       if (result.outs >= 3) {
-        // small timeout to allow modal to close smoothly
         setTimeout(() => {
           setBalls(0);
           setStrikes(0);
@@ -204,6 +282,50 @@ export default function GameScreen() {
             setInning(i => i + 1);
           }
         }, 50);
+      }
+    };
+
+    // handle user selection for a single runner prompt
+    const handleRunnerChoice = (base: 'first'|'second'|'third', choice: 'held'|'to2'|'to3'|'score'|'to1') => {
+      if (!pendingOutcomeResult || !pendingPreRunners) return;
+      // copy current pending outcome's runners and runs
+      const r = { ...pendingOutcomeResult.runners } as RunnerState;
+      let additionalRuns = 0;
+
+      // interpret choice and modify r/add runs accordingly. choices: held, to1, to2, to3, score
+      if (choice === 'held') {
+        // leave base occupancy as pre (so set the base to true, others unchanged)
+        r[base] = true;
+      } else if (choice === 'to1') {
+        // move to first (used if runner on home? unlikely) - set first true, previous base false
+        r.first = true;
+        r[base] = false;
+      } else if (choice === 'to2') {
+        // moved to second
+        r.second = true;
+        r[base] = false;
+      } else if (choice === 'to3') {
+        r.third = true;
+        r[base] = false;
+      } else if (choice === 'score') {
+        additionalRuns += 1;
+        r[base] = false;
+      }
+
+      // decrement runsScored in pendingOutcomeResult by replacing with new object
+      const newResult: OutcomeResult = { ...pendingOutcomeResult, runners: r, runsScored: (pendingOutcomeResult.runsScored || 0) + additionalRuns };
+      setPendingOutcomeResult(newResult);
+
+      // move to next prompt or commit
+      const nextIndex = currentPromptIndex + 1;
+      if (nextIndex >= pendingRunnerPrompts.length) {
+        // all prompts answered -> commit
+        setPendingRunnerPrompts([]);
+        setPendingPreRunners(null);
+        setCurrentPromptIndex(0);
+        if (newResult) commitOutcomeResult(newResult);
+      } else {
+        setCurrentPromptIndex(nextIndex);
       }
     };
   return (
@@ -315,14 +437,69 @@ export default function GameScreen() {
         </View>
       </Modal>
 
+      {/* Runner advance prompt modal (sequential) */}
+      <Modal visible={pendingRunnerPrompts.length > 0} transparent animationType="fade" onRequestClose={() => {}}>
+        <TouchableWithoutFeedback>
+          <View style={styles.menuOverlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.menuModalContainer} pointerEvents="box-none">
+          <View style={styles.menuModal}>
+            <Text style={{fontWeight:'bold', marginBottom:8}}>Runner advancement</Text>
+            {pendingRunnerPrompts.length > 0 && pendingPreRunners && (
+              <View>
+                {/* current base being prompted */}
+                <Text style={{marginBottom:6}}>Runner on {pendingRunnerPrompts[currentPromptIndex]} — where did they go?</Text>
+                <TouchableOpacity style={styles.popupItem} onPress={() => handleRunnerChoice(pendingRunnerPrompts[currentPromptIndex], 'held')}>
+                  <Text style={styles.popupItemText}>Held at base</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.popupItem} onPress={() => handleRunnerChoice(pendingRunnerPrompts[currentPromptIndex], 'to1')}>
+                  <Text style={styles.popupItemText}>To 1st</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.popupItem} onPress={() => handleRunnerChoice(pendingRunnerPrompts[currentPromptIndex], 'to2')}>
+                  <Text style={styles.popupItemText}>To 2nd</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.popupItem} onPress={() => handleRunnerChoice(pendingRunnerPrompts[currentPromptIndex], 'to3')}>
+                  <Text style={styles.popupItemText}>To 3rd</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.popupItem} onPress={() => handleRunnerChoice(pendingRunnerPrompts[currentPromptIndex], 'score')}>
+                  <Text style={styles.popupItemText}>Scored</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {/* Bottom play bar with current player and up-arrow button */}
       <TouchableOpacity
         style={styles.playBar}
-        onPress={() => console.log("Show players slide-up (to implement)")}
+        onPress={() => setShowStatsSheet(true)}
       >
-        <Text style={styles.playText}>6. Chad Waters, #69</Text>
+        <Text style={styles.playText}>{currentBatterDisplay || '1. (empty)'}</Text>
         <Text style={styles.upArrow}>^</Text>
       </TouchableOpacity>
+
+      <StatsSheet visible={showStatsSheet} onClose={() => setShowStatsSheet(false)} homeId={homeId} awayId={awayId} />
+
+      {/* Header menu modal for GameScreen */}
+      <Modal visible={showHeaderMenu} transparent animationType="fade" onRequestClose={() => setShowHeaderMenu(false)}>
+        <TouchableWithoutFeedback onPress={() => setShowHeaderMenu(false)}>
+          <View style={styles.menuOverlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.menuModalContainer} pointerEvents="box-none">
+          <View style={[styles.menuModal, { width: 220 }] }>
+            <TouchableOpacity style={styles.popupItem} onPress={() => { setShowHeaderMenu(false); setShowStatsSheet(true); }}>
+              <Text style={styles.popupItemText}>Open Stats</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.popupItem} onPress={() => { handleRestartGame(); }}>
+              <Text style={styles.popupItemText}>Restart Game</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.popupItem} onPress={() => { handleEndGame(); }}>
+              <Text style={styles.popupItemText}>End Game</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
