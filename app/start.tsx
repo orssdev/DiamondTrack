@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Dropdown from '../components/Dropdown';
-import { ref, onValue } from 'firebase/database';
-import { db } from '../../firebaseConfig';
 import { useRouter } from 'expo-router';
+import { onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { db } from '../firebaseConfig';
+import Dropdown from './components/Dropdown';
 
 export default function StartScreen() {
 	const [leagues, setLeagues] = useState<Array<{id:string; name:string}>>([]);
@@ -67,10 +67,26 @@ export default function StartScreen() {
 }
 
 const styles = StyleSheet.create({
-	container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-	sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 8 },
-	label: { marginTop: 8, fontSize: 14 },
-	startButton: { backgroundColor: '#007bff', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
-	startButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+	// Adopted the GameScreen visual theme (dark navy, green accents) but kept StartScreen logic unchanged
+	container: { flex: 1, padding: 20, backgroundColor: '#071524', paddingBottom: 64 },
+	sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: 8, color: '#E6EEF7' },
+	label: { marginTop: 8, fontSize: 14, color: '#Cbd5e1' },
+	// Button styling visually matches the gridButton from GameScreen
+	startButton: {
+		backgroundColor: '#0f1720',
+		paddingVertical: 14,
+		borderRadius: 8,
+		alignItems: 'center',
+		justifyContent: 'center',
+		// Raised look
+		shadowColor: 'rgba(0,0,0,0.9)',
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.4,
+		shadowRadius: 4,
+		elevation: 6,
+		borderWidth: 1,
+		borderColor: 'rgba(255,255,255,0.03)',
+	},
+	startButtonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
 });
 

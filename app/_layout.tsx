@@ -6,14 +6,15 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen
-      name="Start"
+      name="start"
       options={{
         headerShown: true,
-        headerTitle: "Start Menu"
+        headerTitle: "Start Menu",
+        headerStyle: { backgroundColor: "#071524" },
+        headerTintColor: "#34D399",
+        headerTitleStyle: { color: "#E6EEF7" }
       }}
       />
-
-
       <Stack.Screen
         name="GameScreen"
         options={{
