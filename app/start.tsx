@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { db } from '../firebaseConfig';
 import Dropdown from './components/Dropdown';
+import { colors } from './theme/colors';
 
 export default function StartScreen() {
 	const [leagues, setLeagues] = useState<Array<{id:string; name:string}>>([]);
@@ -73,12 +74,12 @@ export default function StartScreen() {
 
 const styles = StyleSheet.create({
 	// Adopted the GameScreen visual theme (dark navy, green accents) but kept StartScreen logic unchanged
-	container: { flex: 1, padding: 20, backgroundColor: '#071524', paddingBottom: 180 },
-	sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: 8, color: '#E6EEF7' },
-	label: { marginTop: 8, fontSize: 14, color: '#Cbd5e1' },
-	// Button styling visually matches the gridButton from GameScreen
+	container: { flex: 1, padding: 20, backgroundColor: colors.background, paddingBottom: 180 },
+	sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: 8, color: colors.textPrimary },
+	label: { marginTop: 8, fontSize: 14, color: colors.textSubtle },
+	// Button styling visually matches the Outcome pop-up (green border and text)
 	startButton: {
-		backgroundColor: '#0f1720',
+		backgroundColor: colors.surface,
 		paddingVertical: 14,
 		borderRadius: 8,
 		alignItems: 'center',
@@ -90,9 +91,9 @@ const styles = StyleSheet.create({
 		shadowRadius: 4,
 		elevation: 6,
 		borderWidth: 1,
-		borderColor: 'rgba(255,255,255,0.03)',
+		borderColor: colors.green,
 	},
-	startButtonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+	startButtonText: { color: colors.green, fontWeight: '700', fontSize: 16 },
 	footer: {
 		position: 'absolute',
 		left: 0,
@@ -100,16 +101,16 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		height: 140,
 		borderTopWidth: StyleSheet.hairlineWidth,
-		borderTopColor: '#0f1720',
+		borderTopColor: colors.surface,
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: '#071524',
+		backgroundColor: colors.background,
 		paddingHorizontal: 12,
 		paddingBottom: 8,
 	},
 	footerText: {
-		fontSize: 32,
-		color: '#34D399',
+		fontSize: 30,
+		color: colors.green,
 		fontWeight: '800',
 		letterSpacing: 0.8,
 	},

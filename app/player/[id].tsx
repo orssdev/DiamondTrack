@@ -1,10 +1,9 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { DatabaseReference, DataSnapshot, get, onValue, ref, set } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import Dropdown from '../components/Dropdown';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ref, set, onValue, get, DatabaseReference, DataSnapshot } from 'firebase/database';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { db } from '../../firebaseConfig';
+import Dropdown from '../components/Dropdown';
 
 interface League { id: string; name: string; country?: string }
 interface Team { id: string; leagueId: string; name: string; location?: string }
@@ -113,7 +112,7 @@ export default function PlayerScreen() {
       });
       Alert.alert('Saved', 'Player saved successfully');
       setMode('view');
-      if (isNew) router.replace('/(tabs)/stats');
+  if (isNew) router.replace('/stats');
     } catch (e) {
       console.error('Failed saving player', e);
       Alert.alert('Error', 'Failed to save player');

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { colors } from './theme/colors';
 
 export default function RootLayout() {
   return (
@@ -10,13 +11,13 @@ export default function RootLayout() {
       options={{
         headerShown: true,
         headerTitle: "Start Menu",
-        headerStyle: { backgroundColor: "#071524" },
-        headerTintColor: "#34D399",
-        headerTitleStyle: { color: "#E6EEF7" },
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.green,
+        headerTitleStyle: { color: colors.textPrimary },
         headerLeft: () => (
           <TouchableOpacity onPress={() => console.log("Menu pressed")}> 
             <View style={styles.menuContainer}>
-              <Ionicons name="menu" size={28} color="#34D399" />
+              <Ionicons name="menu" size={28} color={colors.green} />
             </View>
           </TouchableOpacity>
         ),
@@ -27,13 +28,13 @@ export default function RootLayout() {
         options={{
           headerShown: true,
           headerTitle: "Game Screen",
-          headerStyle: { backgroundColor: "#071524" },
-          headerTintColor: "#34D399",
-          headerTitleStyle: { color: "#E6EEF7" },
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.green,
+          headerTitleStyle: { color: colors.textPrimary },
           headerLeft: () => (
             <TouchableOpacity onPress={() => console.log("Menu pressed")}>
               <View style={styles.menuContainer}>
-                <Ionicons name="menu" size={28} color="#34D399" />
+                <Ionicons name="menu" size={28} color={colors.green} />
               </View>
             </TouchableOpacity>
           ),
