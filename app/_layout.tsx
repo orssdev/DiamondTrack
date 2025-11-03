@@ -6,6 +6,15 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen
+      name="Start"
+      options={{
+        headerShown: true,
+        headerTitle: "Start Menu"
+      }}
+      />
+
+
+      <Stack.Screen
         name="GameScreen"
         options={{
           headerShown: true,

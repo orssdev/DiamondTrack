@@ -40,7 +40,7 @@ export default function StartScreen() {
 			return;
 		}
 			// use as any to avoid strict route typing when building dynamic query string
-			router.push({ pathname: '/game', params: { home: homeTeam, away: awayTeam } } as any);
+			router.push({ pathname: '../GameScreen', params: { home: homeTeam, away: awayTeam } } as any);
 	};
 
 	return (

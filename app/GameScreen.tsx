@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebaseConfig';
 import {
   Dimensions,
   Image,
@@ -6,25 +9,59 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
 export default function GameScreen() {
+  const params = useLocalSearchParams();
+    const homeId = params.home as string | undefined;
+    const awayId = params.away as string | undefined;
+  
+    const [homeName, setHomeName] = useState<string>('');
+    const [awayName, setAwayName] = useState<string>('');
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      let unsubHome: any = () => {};
+      let unsubAway: any = () => {};
+      if (homeId) {
+        const r = ref(db, `Teams/${homeId}`);
+        unsubHome = onValue(r, (snap) => {
+          const data = snap.val();
+          setHomeName(data?.name ?? '');
+          setLoading(false);
+        });
+      }
+      if (awayId) {
+        const r = ref(db, `Teams/${awayId}`);
+        unsubAway = onValue(r, (snap) => {
+          const data = snap.val();
+          setAwayName(data?.name ?? '');
+          setLoading(false);
+        });
+      }
+  
+      return () => { unsubHome(); unsubAway(); };
+    }, [homeId, awayId]);
+  
+    if (loading) return <View style={styles.centered}><ActivityIndicator /></View>;
+  
   return (
     <View style={styles.screen}>
       {/* Info row (three columns) */}
       <View style={styles.infoRow}>
         <View style={styles.infoCell}>
-          <Text style={styles.infoTitle}>HOME</Text>
+          <Text style={styles.infoTitle}>{homeId || 'Home'}</Text>
           <Text style={styles.infoValue}>1</Text>
         </View>
         <View style={styles.infoCell}>
-          <Text style={styles.infoTitle}>IDK</Text>
+          <Text style={styles.infoTitle}>INN</Text>
           <Text style={styles.infoValue}>4</Text>
         </View>
         <View style={styles.infoCell}>
-          <Text style={styles.infoTitle}>AWAY</Text>
+          <Text style={styles.infoTitle}>{awayId || 'Away'}</Text>
           <Text style={styles.infoValue}>0</Text>
         </View>
       </View>
@@ -246,4 +283,10 @@ const styles = StyleSheet.create({
     color: "#34D399",
     paddingHorizontal: 8,
   },
+  centered: { 
+    flex: 1, 
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
 });
