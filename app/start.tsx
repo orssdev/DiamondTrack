@@ -136,11 +136,7 @@ const styles = StyleSheet.create({
 	},
 	footerText: {
 		fontSize: 30,
-<<<<<<< HEAD
-		color: '#34D399',
-=======
 		color: colors.green,
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
 		fontWeight: '800',
 		letterSpacing: 0.8,
 	},
