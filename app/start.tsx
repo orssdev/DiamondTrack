@@ -62,13 +62,18 @@ export default function StartScreen() {
 			<TouchableOpacity style={styles.startButton} onPress={handleStart}>
 				<Text style={styles.startButtonText}>START</Text>
 			</TouchableOpacity>
+
+			{/* Footer logo at bottom */}
+			<TouchableOpacity style={styles.footer} onPress={() => console.log('Logo pressed')} activeOpacity={0.8}>
+				<Text style={styles.footerText}>DiamondTrack ⚾</Text>
+			</TouchableOpacity>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
 	// Adopted the GameScreen visual theme (dark navy, green accents) but kept StartScreen logic unchanged
-	container: { flex: 1, padding: 20, backgroundColor: '#071524', paddingBottom: 64 },
+	container: { flex: 1, padding: 20, backgroundColor: '#071524', paddingBottom: 180 },
 	sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: 8, color: '#E6EEF7' },
 	label: { marginTop: 8, fontSize: 14, color: '#Cbd5e1' },
 	// Button styling visually matches the gridButton from GameScreen
@@ -88,5 +93,25 @@ const styles = StyleSheet.create({
 		borderColor: 'rgba(255,255,255,0.03)',
 	},
 	startButtonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+	footer: {
+		position: 'absolute',
+		left: 0,
+		right: 0,
+		bottom: 0,
+		height: 140,
+		borderTopWidth: StyleSheet.hairlineWidth,
+		borderTopColor: '#0f1720',
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: '#071524',
+		paddingHorizontal: 12,
+		paddingBottom: 8,
+	},
+	footerText: {
+		fontSize: 32,
+		color: '#34D399',
+		fontWeight: '800',
+		letterSpacing: 0.8,
+	},
 });
 
