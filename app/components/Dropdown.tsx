@@ -1,5 +1,6 @@
 import React from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { colors } from '../theme/colors';
 
 interface Item {
   label: string;
@@ -58,8 +59,8 @@ const styles = StyleSheet.create({
   container: {
     height: 42,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    backgroundColor: '#0f1720',
+    borderColor: colors.green,
+    backgroundColor: colors.surface,
     borderRadius: 6,
     paddingHorizontal: 10,
     flexDirection: 'row',
@@ -67,15 +68,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 6,
   },
-  text: { fontSize: 16, color: '#E6EEF7' },
-  placeholder: { color: '#9CA3AF' },
-  chev: { fontSize: 18, color: '#34D399' },
+  text: { fontSize: 16, color: colors.textPrimary },
+  placeholder: { color: colors.textMuted },
+  chev: { fontSize: 18, color: colors.green },
   disabled: { opacity: 0.6 },
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   modalContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-  modalBox: { width: '80%', maxHeight: '60%', backgroundColor: '#0f1720', borderRadius: 8, padding: 8, elevation: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.03)' },
-  item: { paddingVertical: 12, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: '#071524' },
-  itemText: { fontSize: 16, color: '#E6EEF7' },
+  modalBox: { width: '80%', maxHeight: '60%', backgroundColor: colors.surface, borderRadius: 8, padding: 8, elevation: 6, borderWidth: 1, borderColor: colors.green },
+  item: { paddingVertical: 12, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: colors.background },
+  itemText: { fontSize: 16, color: colors.green, fontWeight: '600' },
 });
 
 export default Dropdown;

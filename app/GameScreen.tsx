@@ -1,22 +1,41 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../firebaseConfig';
 import { 
+=======
+import { useLocalSearchParams } from 'expo-router';
+import { onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+>>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
   Dimensions,
+  FlatList,
   Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
+<<<<<<< HEAD
   View,
   ActivityIndicator,
   FlatList,
   Modal,
   Alert,
+=======
+>>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
+<<<<<<< HEAD
 import StatsSheet from './components/StatsSheet';
 import { on as onEvent } from './utils/events';
+=======
+import { db } from '../firebaseConfig';
+import { colors } from './theme/colors';
+>>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
 
 const { width, height } = Dimensions.get("window");
 
@@ -423,12 +442,12 @@ export default function GameScreen() {
         </TouchableWithoutFeedback>
         <View style={styles.menuModalContainer} pointerEvents="box-none">
           <View style={styles.menuModal}>
-            <Text style={{fontWeight: 'bold', marginBottom: 8}}>Select Outcome</Text>
+            <Text style={{ fontWeight: 'bold', marginBottom: 8, color: '#E6EEF7', fontSize: 16 }}>Select Outcome</Text>
             <FlatList
               data={OUTCOMES}
               keyExtractor={it => it.key}
               renderItem={({item}) => (
-                <TouchableOpacity style={styles.popupItem} onPress={() => applyOutcome(item.key)}>
+                <TouchableOpacity style={styles.popupItem} onPress={() => applyOutcome(item.key) } activeOpacity={0.7}>
                   <Text style={styles.popupItemText}>{item.label}</Text>
                 </TouchableOpacity>
               )}
@@ -507,7 +526,7 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#071524", // dark navy background
+    backgroundColor: colors.background, // dark navy background
     paddingBottom: 64,
   },
   infoRow: {
@@ -525,12 +544,12 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 14,
-    color: "#9CA3AF", // muted gray for titles
+    color: colors.textMuted, // muted gray for titles
   },
   infoValue: {
     fontSize: 26,
     fontWeight: "600",
-    color: "#34D399", // green accent for values
+    color: colors.green, // green accent for values
     marginTop: 4,
   },
   countRow: {
@@ -540,7 +559,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#ddd",
+    borderBottomColor: colors.borderSubtle,
   },
   countGroup: {
     flex: 1,
@@ -550,7 +569,7 @@ const styles = StyleSheet.create({
   countLabel: {
     width: 18,
     textAlign: "center",
-    color: "#Cbd5e1",
+    color: colors.textSubtle,
     fontWeight: "600",
   },
   dotsRow: {
@@ -561,7 +580,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 6,
-    backgroundColor: "#34D399", // green accent
+    backgroundColor: colors.green, // green accent
     marginRight: 6,
   },
   dotEmpty: {
@@ -569,7 +588,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "#34D399",
+    borderColor: colors.green,
     backgroundColor: "transparent",
     marginRight: 6,
   },
@@ -595,7 +614,7 @@ const styles = StyleSheet.create({
   },
   gridButton: {
     width: "48%",
-    backgroundColor: "#0f1720", // slightly lighter than screen
+    backgroundColor: colors.surface, // slightly lighter than screen
     paddingVertical: 16,
     marginBottom: 12,
     borderRadius: 8,
@@ -609,7 +628,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 6,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.03)",
+    borderColor: colors.borderSubtle,
   },
   gridButtonText: {
     fontSize: 16,
@@ -623,20 +642,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: 56,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#0f1720",
+    borderTopColor: colors.surface,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    backgroundColor: "#071524",
+    backgroundColor: colors.background,
   },
   playText: {
     fontSize: 16,
-    color: "#E6EEF7",
+    color: colors.textPrimary,
   },
   upArrow: {
     fontSize: 20,
-    color: "#34D399",
+    color: colors.green,
     paddingHorizontal: 8,
   },
   centered: { 
@@ -648,14 +667,39 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 6,
-    backgroundColor: '#34D399',
+    backgroundColor: colors.green,
     marginRight: 6,
     opacity: 1,
   },
-  menuOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  menuModalContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-  menuModal: { width: 280, backgroundColor: '#fff', borderRadius: 8, padding: 12, elevation: 8, borderWidth: 1, borderColor: '#ddd' },
-  popupItem: { paddingVertical: 10 },
-  popupItemText: { fontSize: 16 },
-
+  menuOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.6)' 
+  },
+  menuModalContainer: { 
+    position: 'absolute', 
+    top: 0, left: 0, right: 0, bottom: 0, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  menuModal: { 
+    width: 280, 
+    backgroundColor: colors.surface,
+    borderRadius: 8, 
+    padding: 12, 
+    elevation: 8, 
+    borderWidth: 1, 
+    borderColor: colors.green,
+  },
+  popupItem: { 
+    paddingVertical: 12, 
+    paddingHorizontal: 8, 
+    borderRadius: 6,
+    backgroundColor: colors.background,
+    marginBottom: 6,
+  },
+  popupItemText: { 
+    fontSize: 16, 
+    color: colors.green,
+    fontWeight: '600',
+  },
 });

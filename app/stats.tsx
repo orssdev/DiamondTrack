@@ -1,11 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useRouter } from 'expo-router';
+<<<<<<< HEAD
 import { ref, onValue, query, orderByChild, equalTo, DatabaseReference, DataSnapshot, push, set } from 'firebase/database';
 import { db } from '../firebaseConfig';
 import AddLeagueModal from './components/addLeagueModal';
 import AddTeamModal from './components/addTeamModal';
 import { Double } from 'react-native/Libraries/Types/CodegenTypes';
+=======
+import { DatabaseReference, DataSnapshot, equalTo, onValue, orderByChild, query, ref, set } from 'firebase/database';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { db } from '../firebaseConfig';
+import AddLeagueModal from './components/addLeagueModal';
+import AddTeamModal from './components/addTeamModal';
+>>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
 
 interface League {
   id: string;
