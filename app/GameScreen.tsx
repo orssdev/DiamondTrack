@@ -1,16 +1,10 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ref, onValue } from 'firebase/database';
-import { db } from '../firebaseConfig';
-import { 
-=======
-import { useLocalSearchParams } from 'expo-router';
 import { onValue, ref } from 'firebase/database';
+import { on as onEvent, emit } from './utils/events';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -18,24 +12,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-<<<<<<< HEAD
-  View,
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  Alert,
-=======
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-<<<<<<< HEAD
-import StatsSheet from './components/StatsSheet';
-import { on as onEvent } from './utils/events';
-=======
 import { db } from '../firebaseConfig';
 import { colors } from './theme/colors';
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
+import StatsSheet from './components/StatsSheet';
 
 const { width, height } = Dimensions.get("window");
 

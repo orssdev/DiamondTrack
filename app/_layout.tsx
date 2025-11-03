@@ -1,11 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-<<<<<<< HEAD
-import { emit } from './utils/events';
-=======
 import { colors } from './theme/colors';
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
+import { on as onEvent, emit } from './utils/events';
 
 export default function RootLayout() {
   return (
@@ -32,17 +29,9 @@ export default function RootLayout() {
         options={{
           headerShown: true,
           headerTitle: "Game Screen",
-<<<<<<< HEAD
-          // disable swipe back gesture to prevent returning to start by swiping
-          gestureEnabled: false,
-          headerStyle: { backgroundColor: "#071524" },
-          headerTintColor: "#34D399",
-          headerTitleStyle: { color: "#E6EEF7" },
-=======
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.green,
           headerTitleStyle: { color: colors.textPrimary },
->>>>>>> 9846e53600c7f3ef4956294a28b5d50347a01211
           headerLeft: () => (
             <TouchableOpacity onPress={() => emit('openMenu','game')}>
               <View style={styles.menuContainer}>

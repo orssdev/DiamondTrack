@@ -16,9 +16,8 @@ export default function StartScreen() {
 	const [homeTeam, setHomeTeam] = useState<string>('');
 	const [awayLeague, setAwayLeague] = useState<string>('');
 	const [awayTeam, setAwayTeam] = useState<string>('');
-
 	const router = useRouter();
-		const [showMenu, setShowMenu] = useState<boolean>(false);
+	const [showMenu, setShowMenu] = useState<boolean>(false);
 
 		useEffect(() => {
 			const unsub = onEvent('openMenu', (payload) => {
@@ -51,7 +50,7 @@ export default function StartScreen() {
 			return;
 		}
 			// use as any to avoid strict route typing when building dynamic query string
-			router.push({ pathname: '../GameScreen', params: { home: homeTeam, away: awayTeam } } as any);
+			router.push({ pathname: '/GameScreen', params: { home: homeTeam, away: awayTeam } } as any);
 	};
 
 	return (
