@@ -52,14 +52,10 @@ export default function StatsScreen() {
   // New state for showing add item modals
   const [showAddLeagueModal, setShowAddLeagueModal] = useState<boolean>(false);
   const [showAddTeamModal, setShowAddTeamModal] = useState<boolean>(false);
-  // track which item's menu is open: format '<type>:<id>' e.g. 'league:abc'
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  // data to edit in modals
   const [editLeagueData, setEditLeagueData] = useState<{ id: string; name: string; country: string } | null>(null);
   const [editTeamData, setEditTeamData] = useState<{ id: string; leagueId: string; name: string; location: string; record?: { wins: number; losses: number; ties: number } } | null>(null);
   const router = useRouter();
-
-  // --- Effect for fetching all Leagues ---
   useEffect(() => {
     setLoadingLeagues(true);
     const leaguesRef: DatabaseReference = ref(db, 'leagues');
@@ -77,10 +73,9 @@ export default function StatsScreen() {
       setLoadingLeagues(false);
     });
 
-    return () => unsubscribe(); // Clean up listener
-  }, []); // Runs once on mount
+    return () => unsubscribe();
+  }, []);
 
-  // --- Effect for fetching Teams based on selectedLeagueId ---
   useEffect(() => {
     let unsubscribe: () => void = () => {};
 
@@ -114,7 +109,6 @@ export default function StatsScreen() {
     return () => unsubscribe();
   }, [selectedLeagueId]);
 
-  // --- Effect for fetching Players based on selectedTeamId ---
   useEffect(() => {
     let unsubscribe: () => void = () => {};
 
@@ -145,7 +139,6 @@ export default function StatsScreen() {
     return () => unsubscribe();
   }, [selectedTeamId]);
 
-  // --- Handlers for selection ---
   const handleSelectLeague = useCallback((leagueId: string) => {
     setSelectedLeagueId(prev => (prev === leagueId ? null : leagueId));
   }, []);
@@ -154,11 +147,10 @@ export default function StatsScreen() {
     setSelectedTeamId(prev => (prev === teamId ? null : teamId));
   }, []);
 
-  // --- Handlers for adding new items ---
+
   const handleAddLeague = () => {
     setEditLeagueData(null);
     setShowAddLeagueModal(true);
-    // In a real app, you'd show a form/modal here to collect league details
     console.log("Opening Add League form...");
   };
 
@@ -169,11 +161,9 @@ export default function StatsScreen() {
     }
     setEditTeamData(null);
     setShowAddTeamModal(true);
-    // In a real app, you'd show a form/modal here to collect team details
     console.log(`Opening Add Team form for League: ${selectedLeagueId}...`);
   };
 
-  // --- Handlers to save new league/team to Firebase using provided IDs ---
   const handleSaveLeague = async (leagueData: { id: string; name: string; country: string }) => {
     if (!leagueData.id) throw new Error('League id is required');
     const leagueRef: DatabaseReference = ref(db, `leagues/${leagueData.id}`);
@@ -194,8 +184,6 @@ export default function StatsScreen() {
     });
   };
 
-  // --- Render methods ---
-  // small fallback to find a team if filteredTeams doesn't have it (defensive)
   const teamsFallback = () => ({ id: '', leagueId: selectedLeagueId ?? '', name: '', location: '', record: { wins: 0, losses: 0, ties: 0 } });
 
   const renderLeagueItem = ({ item }: { item: League }) => (

@@ -1,8 +1,6 @@
 // components/AddLeagueModal.tsx
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { ref, push, set } from 'firebase/database';
-import { db } from '../../firebaseConfig'; // Adjust path if necessary
+import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface AddLeagueModalProps {
   isVisible: boolean;

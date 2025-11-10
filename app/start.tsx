@@ -1,14 +1,12 @@
 import { useRouter } from 'expo-router';
-import { on as onEvent, emit } from './utils/events';
-import { Modal, TouchableWithoutFeedback, ActivityIndicator, Animated, Image } from 'react-native'; 
+import { onAuthStateChanged, signInAnonymously, signOut, User } from 'firebase/auth';
 import { onValue, ref } from 'firebase/database';
-import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native'; 
-import { db, auth } from '../firebaseConfig';
-import { signInAnonymously, onAuthStateChanged, signOut, User } from 'firebase/auth'; 
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { auth, db } from '../firebaseConfig';
 import Dropdown from './components/Dropdown';
 import { colors } from './theme/colors';
-import { ThemeContext } from '@react-navigation/native';
+import { on as onEvent } from './utils/events';
 
 export default function StartScreen() {
     // Authentication state

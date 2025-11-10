@@ -1,6 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { onValue, ref } from 'firebase/database';
-import { on as onEvent, emit } from './utils/events';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -16,8 +15,9 @@ import {
   View,
 } from "react-native";
 import { db } from '../firebaseConfig';
-import { colors } from './theme/colors';
 import StatsSheet from './components/StatsSheet';
+import { colors } from './theme/colors';
+import { on as onEvent } from './utils/events';
 
 const { width, height } = Dimensions.get("window");
 
@@ -508,7 +508,7 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.background, // dark navy background
+    backgroundColor: colors.background,
     paddingBottom: 64,
   },
   infoRow: {
@@ -526,12 +526,12 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 14,
-    color: colors.textMuted, // muted gray for titles
+    color: colors.textMuted,
   },
   infoValue: {
     fontSize: 26,
     fontWeight: "600",
-    color: colors.green, // green accent for values
+    color: colors.green,
     marginTop: 4,
   },
   countRow: {
@@ -575,14 +575,12 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   fieldContainer: {
-    // increase flex so the field image occupies more vertical space
     flex: 1.1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 6,
   },
   fieldImage: {
-    // grow based on available width and height but keep a reasonable max
     width: Math.min(width * 0.98, 780),
     height: Math.min(height * 0.48, 720),
   },
@@ -596,14 +594,13 @@ const styles = StyleSheet.create({
   },
   gridButton: {
     width: "48%",
-    backgroundColor: colors.surface, // slightly lighter than screen
+    backgroundColor: colors.surface,
     paddingVertical: 16,
     marginBottom: 12,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     minHeight: 56,
-    // Raised look
     shadowColor: "rgba(0,0,0,0.9)",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,

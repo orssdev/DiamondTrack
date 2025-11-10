@@ -1,16 +1,13 @@
 // components/AddTeamModal.tsx
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { ref, push, set } from 'firebase/database';
-import { db } from '../../firebaseConfig'; // Adjust path if necessary
+import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface AddTeamModalProps {
   isVisible: boolean;
   onClose: () => void;
   onSave: (teamData: { id: string; leagueId: string; name: string; location: string; record: { wins: number; losses: number; ties: number } }) => Promise<void>;
   selectedLeagueId: string | null;
-  selectedLeagueName: string; // To display in the modal title
-  // optional initial data for edit
+  selectedLeagueName: string;
   initialData?: { id: string; leagueId: string; name: string; location: string; record?: { wins: number; losses: number; ties: number } } | null;
   mode?: 'add' | 'edit';
 }
@@ -45,7 +42,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({ isVisible, onClose, onSave,
 
     setIsSaving(true);
     try {
-      // Default record to 0-0-0 when creating a new team
       await onSave({
         id: id.trim(),
         leagueId: selectedLeagueId,
@@ -128,8 +124,6 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({ isVisible, onClose, onSave,
   );
 };
 
-// Re-using modalStyles from AddLeagueModal for consistency.
-// You might want to extract these into a common stylesheet for larger apps.
 const modalStyles = StyleSheet.create({
   centeredView: {
     flex: 1,

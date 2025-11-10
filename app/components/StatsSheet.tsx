@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { ref, onValue, get } from 'firebase/database';
-import { db } from '../../firebaseConfig';
 import { useRouter } from 'expo-router';
+import { get, onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { db } from '../../firebaseConfig';
 
 export default function StatsSheet({ visible, onClose, homeId, awayId, currentBatSlot }: { visible: boolean; onClose: () => void; homeId?: string; awayId?: string; currentBatSlot?: number }) {
   const [selectedTeam, setSelectedTeam] = useState<'home' | 'away'>('home');
