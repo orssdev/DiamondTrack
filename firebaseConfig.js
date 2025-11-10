@@ -1,6 +1,7 @@
 //AIzaSyDQ-RwWt-DAfP3ooM_QC2ZgjnvMlThqaYw
 // firebaseConfig.js
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth'; // For authentication
 import { getDatabase } from 'firebase/database'; // Import Realtime Database service
 
 // Your web app's Firebase configuration
@@ -17,12 +18,8 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
+export const auth = getAuth(app);
+
 // Get a reference to the Realtime Database service and EXPORT it
 export const db = getDatabase(app);
 
-// If you plan to use other Firebase services, you'd export them similarly:
-// import { getAuth } from 'firebase/auth';
-// export const auth = getAuth(app);
-
-// import { getFirestore } from 'firebase/firestore';
-// export const firestore = getFirestore(app);
