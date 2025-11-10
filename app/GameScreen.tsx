@@ -16,8 +16,9 @@ import {
   View,
 } from "react-native";
 import { db } from '../firebaseConfig';
-import { colors } from './theme/colors';
 import StatsSheet from './components/StatsSheet';
+import { colors } from './theme/colors';
+import { on as onEvent } from './utils/events';
 
 const { width, height } = Dimensions.get("window");
 
@@ -646,7 +647,7 @@ export default function GameScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.background, // dark navy background
+    backgroundColor: colors.background,
     paddingBottom: 64,
   },
   infoRow: {
@@ -664,12 +665,12 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     fontSize: 14,
-    color: colors.textMuted, // muted gray for titles
+    color: colors.textMuted,
   },
   infoValue: {
     fontSize: 26,
     fontWeight: "600",
-    color: colors.green, // green accent for values
+    color: colors.green,
     marginTop: 4,
   },
   countRow: {
