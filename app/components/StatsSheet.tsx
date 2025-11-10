@@ -12,10 +12,12 @@ export default function StatsSheet({ visible, onClose, homeId, awayId, currentBa
   const teamId = selectedTeam === 'home' ? homeId : awayId;
 
   useEffect(() => {
-    let unsub: (() => void) | null = null;
+  let unsub: (() => void) | null = null;
+  // cleanup for player subscriptions created inside the onValue handler
+  let playerSubsCleanup: (() => void) | null = null;
     if (!teamId) { setLineup([]); return; }
     const r = ref(db, `Teams/${teamId}/lineup`);
-    unsub = onValue(r, async (snap) => {
+    unsub = onValue(r, (snap) => {
       const val = snap.val() || {};
       // Expecting keys '1' through '9' mapped to playerId
       const arr: Array<{ slot: number; playerId?: string }> = [];
@@ -23,23 +25,42 @@ export default function StatsSheet({ visible, onClose, homeId, awayId, currentBa
         const pid = val && (val[i] || val[String(i)]);
         arr.push({ slot: i, playerId: pid });
       }
-      // fetch player objects for any playerId entries
-      const withPlayers = await Promise.all(arr.map(async (entry) => {
-        if (!entry.playerId) return { ...entry, player: null };
-        try {
-          const snapP = await get(ref(db, `Players/${entry.playerId}`));
-          const p = snapP.val();
-          // ensure player belongs to the team
-          if (p && p.teamId === teamId) return { ...entry, player: { id: entry.playerId, ...p } };
-          // mismatch or missing -> treat as empty
-          return { ...entry, player: null };
-        } catch (e) {
-          return { ...entry, player: null };
-        }
-      }));
-      setLineup(withPlayers as any);
+
+      // For live updates, subscribe to each player node and update lineup entries when they change
+      // clean up any prior player subscriptions first
+      if (playerSubsCleanup) {
+        try { playerSubsCleanup(); } catch (e) {}
+        playerSubsCleanup = null;
+      }
+      const subs: { [pid: string]: (() => void) } = {};
+      const results: Array<{ slot: number; playerId?: string; player?: any }> = arr.map(a => ({ ...a, player: null }));
+      arr.forEach((entry, idx) => {
+        if (!entry.playerId) return;
+        const pRef = ref(db, `Players/${entry.playerId}`);
+        const unsubP = onValue(pRef, (psnap) => {
+          const p = psnap.val();
+          // only keep if team matches
+          if (p && p.teamId === teamId) results[idx].player = { id: entry.playerId, ...p };
+          else results[idx].player = null;
+          setLineup([...results]);
+        });
+        subs[entry.playerId] = unsubP;
+      });
+
+      // set initial lineup (will be updated by subs)
+      setLineup(results);
+
+      // cleanup function should also remove player subs
+      const cleanup = () => {
+        Object.values(subs).forEach(u => { try { u(); } catch (e) {} });
+      };
+      // store cleanup in closure variable so outer return can call it safely
+      playerSubsCleanup = cleanup;
     });
-    return () => { if (unsub) unsub(); };
+    return () => { 
+      if (playerSubsCleanup) { try { playerSubsCleanup(); } catch (e) {} }
+      if (unsub) try { unsub(); } catch (e) {}
+    };
   }, [teamId]);
 
   return (

@@ -183,7 +183,7 @@ export default function StartScreen() {
             </TouchableOpacity>
 
             {showEaster && (
-                <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: '20%', alignItems: 'center', opacity: fadeAnim }} pointerEvents="none">
+                <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: '5%', alignItems: 'center', opacity: fadeAnim }} pointerEvents="none">
                     <Image source={require('../assets/images/easter_chad.jpg')} style={{ width: 900, height: 900, opacity: 1 }} />
                 </Animated.View>
             )}

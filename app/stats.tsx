@@ -31,8 +31,20 @@ interface Player {
   teamId: string;
   position: string;
   stats: {
-    battingAverage: number;
     plateAppearences: number;
+    atBats: number;
+    hits: number;
+    walks: number;
+    strikeouts: number;
+    singles: number;
+    doubles: number;
+    triples: number;
+    homeruns: number;
+    RBIs: number;
+    runs: number;
+    battingAverage: number;
+    onBasePercent: number;
+    Slugging: number;
   }
 }
 
