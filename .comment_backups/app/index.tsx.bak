@@ -1,7 +1,5 @@
-// File: app/index.tsx
 import { Redirect } from 'expo-router';
 
-// Exported Fn: Index
 export default function Index() {
   return <Redirect href="/start" />;
 }

@@ -1,4 +1,3 @@
-// File: app/stats.tsx
 import { useRouter } from 'expo-router';
 import { DatabaseReference, DataSnapshot, equalTo, onValue, orderByChild, query, ref, set } from 'firebase/database';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -49,7 +48,6 @@ interface Player {
   }
 }
 
-// Exported Fn: StatsScreen
 export default function StatsScreen() {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [filteredTeams, setFilteredTeams] = useState<Team[]>([]);
@@ -63,14 +61,13 @@ export default function StatsScreen() {
   const [loadingPlayers, setLoadingPlayers] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
- 
+  // New state for showing add item modals
   const [showAddLeagueModal, setShowAddLeagueModal] = useState<boolean>(false);
   const [showAddTeamModal, setShowAddTeamModal] = useState<boolean>(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [editLeagueData, setEditLeagueData] = useState<{ id: string; name: string; country: string } | null>(null);
   const [editTeamData, setEditTeamData] = useState<{ id: string; leagueId: string; name: string; location: string; record?: { wins: number; losses: number; ties: number } } | null>(null);
   const router = useRouter();
-  // Subscribe to the leagues list for the left column and update loading state
   useEffect(() => {
     setLoadingLeagues(true);
     const leaguesRef: DatabaseReference = ref(db, 'leagues');
@@ -91,7 +88,6 @@ export default function StatsScreen() {
     return () => unsubscribe();
   }, []);
 
-  // When a league is selected, subscribe to Teams for that league and populate the teams list
   useEffect(() => {
     let unsubscribe: () => void = () => {};
 
@@ -101,7 +97,7 @@ export default function StatsScreen() {
       setFilteredPlayers([]);
       setSelectedTeamId(null);
 
-      const teamsRef: DatabaseReference = ref(db, 'Teams');
+      const teamsRef: DatabaseReference = ref(db, 'Teams'); // Ensure 'teams' matches your RTDB path
       const teamsQuery = query(teamsRef, orderByChild('leagueId'), equalTo(selectedLeagueId));
 
       unsubscribe = onValue(teamsQuery, (snapshot: DataSnapshot) => {
@@ -125,7 +121,6 @@ export default function StatsScreen() {
     return () => unsubscribe();
   }, [selectedLeagueId]);
 
-  // When a team is selected, subscribe to Players for that team and populate the player list
   useEffect(() => {
     let unsubscribe: () => void = () => {};
 
@@ -133,7 +128,7 @@ export default function StatsScreen() {
       setLoadingPlayers(true);
       setFilteredPlayers([]);
 
-      const playersRef: DatabaseReference = ref(db, 'Players');
+      const playersRef: DatabaseReference = ref(db, 'Players'); // Ensure 'players' matches your RTDB path
       const playersQuery = query(playersRef, orderByChild('teamId'), equalTo(selectedTeamId));
 
       unsubscribe = onValue(playersQuery, (snapshot: DataSnapshot) => {
@@ -165,16 +160,12 @@ export default function StatsScreen() {
   }, []);
 
 
-// Open the Add League modal (reset edit state)
-// Fn: handleAddLeague
   const handleAddLeague = () => {
     setEditLeagueData(null);
     setShowAddLeagueModal(true);
     console.log("Opening Add League form...");
   };
 
-// Open the Add Team modal for the selected league (requires a league selected)
-// Fn: handleAddTeam
   const handleAddTeam = () => {
     if (!selectedLeagueId) {
       alert("Please select a league first to add a team.");
@@ -205,8 +196,6 @@ export default function StatsScreen() {
     });
   };
 
-// Return a safe empty team object when needed for UI fallbacks
-// Fn: teamsFallback
   const teamsFallback = () => ({ id: '', leagueId: selectedLeagueId ?? '', name: '', location: '', record: { wins: 0, losses: 0, ties: 0 } });
 
   const renderLeagueItem = ({ item }: { item: League }) => (
@@ -345,7 +334,7 @@ export default function StatsScreen() {
         </>
       )}
 
-      {}
+      {/* Add Modals */}
       <AddLeagueModal
         isVisible={showAddLeagueModal}
         onClose={() => setShowAddLeagueModal(false)}
@@ -382,7 +371,7 @@ export default function StatsScreen() {
         mode={editTeamData ? 'edit' : 'add'}
       />
 
-      {}
+      {/* Full-screen menu modal to avoid clipping */}
       <Modal
         visible={!!openMenu}
         transparent={true}
@@ -520,7 +509,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  titleContainer: {
+  titleContainer: { // New style for title and button alignment
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

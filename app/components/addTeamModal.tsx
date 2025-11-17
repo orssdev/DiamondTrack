@@ -1,4 +1,5 @@
-// components/AddTeamModal.tsx
+// File: app/components/addTeamModal.tsx
+
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -18,6 +19,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({ isVisible, onClose, onSave,
   const [id, setId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // useEffect: populate modal fields from initialData or reset when modal opens
   React.useEffect(() => {
     if (initialData) {
       setId(initialData.id ?? '');
@@ -30,6 +32,7 @@ const AddTeamModal: React.FC<AddTeamModalProps> = ({ isVisible, onClose, onSave,
     }
   }, [initialData, mode, isVisible]);
 
+// Fn: handleSave - validate inputs, call onSave, reset fields and close modal
   const handleSave = async () => {
     if (!id.trim() || !name.trim() || !location.trim()) {
       Alert.alert('Missing Information', 'Please enter an id, team name and location.');

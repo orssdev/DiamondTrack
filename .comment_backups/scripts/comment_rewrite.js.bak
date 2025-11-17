@@ -1,0 +1,111 @@
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.resolve(__dirname, '..');
+const BACKUP_DIR = path.join(ROOT, '.comment_backups');
+const exts = new Set(['.ts', '.tsx', '.js', '.jsx', '.java', '.gradle', '.html', '.css', '.scss', '.xml']);
+
+function walk(dir, list=[]) {
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+  for (const it of items) {
+    const full = path.join(dir, it.name);
+    if (it.isDirectory()) {
+      if (it.name === 'node_modules' || it.name === '.git' || it.name === '.comment_backups') continue;
+      walk(full, list);
+    } else if (exts.has(path.extname(it.name))) {
+      list.push(full);
+    }
+  }
+  return list;
+}
+
+function stripCommentsAndAnnotate(code, filePath) {
+  // remove JS/TS single-line // comments, block /* */ comments and JSX {/* */} comments
+  // naive approach using regex; reasonably safe for most code but not perfect for all edge cases.
+  let out = code;
+  // remove block comments including JSX blocks
+  out = out.replace(/\/\*[\s\S]*?\*\//g, '');
+  // remove JSX comments like {/* ... */}
+  out = out.replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
+  // remove single-line comments
+  out = out.replace(/(^|[^\S\n])\/\/.*$/gm, '');
+
+  // Now annotate: add a one-line comment before functions, classes, and exports
+  // We'll insert: // Fn: <name> or // Anonymous function
+  const lines = out.split('\n');
+  const outLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    let added = false;
+    // function declarations
+    let m = trimmed.match(/^function\s+([A-Za-z0-9_$]+)\s*\(/);
+    if (m) {
+      outLines.push(`// Fn: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+    // class declarations
+    m = trimmed.match(/^class\s+([A-Za-z0-9_$]+)/);
+    if (m) {
+      outLines.push(`// Class: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+    // const/let/var fn = () => or = function
+    m = trimmed.match(/^(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*(?:async\s*)?\(?[A-Za-z0-9_,\s]*\)?\s*=>/);
+    if (m) {
+      outLines.push(`// Fn: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+    m = trimmed.match(/^(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*function\s*\(/);
+    if (m) {
+      outLines.push(`// Fn: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+    // export default function Name
+    m = trimmed.match(/^export\s+default\s+function\s+([A-Za-z0-9_$]+)\s*\(/);
+    if (m) {
+      outLines.push(`// Exported Fn: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+    // export const Name = () =>
+    m = trimmed.match(/^export\s+(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*(?:async\s*)?\(?[A-Za-z0-9_,\s]*\)?\s*=>/);
+    if (m) {
+      outLines.push(`// Exported Fn: ${m[1]}`);
+      outLines.push(line);
+      continue;
+    }
+
+    outLines.push(line);
+  }
+
+  // add a file header comment
+  const rel = path.relative(ROOT, filePath).replace(/\\/g, '/');
+  outLines.unshift(`// File: ${rel}`);
+  return outLines.join('\n');
+}
+
+function ensureDir(d) { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); }
+
+const files = walk(ROOT);
+ensureDir(BACKUP_DIR);
+console.log(`Found ${files.length} candidate files.`);
+for (const f of files) {
+  try {
+    const content = fs.readFileSync(f, 'utf8');
+    const rel = path.relative(ROOT, f);
+    const backupPath = path.join(BACKUP_DIR, rel + '.bak');
+    ensureDir(path.dirname(backupPath));
+    fs.writeFileSync(backupPath, content, 'utf8');
+    const transformed = stripCommentsAndAnnotate(content, f);
+    fs.writeFileSync(f, transformed, 'utf8');
+    console.log(`Processed ${rel}`);
+  } catch (e) {
+    console.error(`Failed ${f}: ${e.message}`);
+  }
+}
+console.log('Done. Backups in .comment_backups');

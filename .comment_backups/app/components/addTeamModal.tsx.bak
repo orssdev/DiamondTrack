@@ -1,56 +1,62 @@
-// File: app/components/addLeagueModal.tsx
-
+// components/AddTeamModal.tsx
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-interface AddLeagueModalProps {
+interface AddTeamModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSave: (leagueData: { id: string; name: string; country: string }) => Promise<void>;
- 
-  initialData?: { id: string; name: string; country: string } | null;
- 
+  onSave: (teamData: { id: string; leagueId: string; name: string; location: string; record: { wins: number; losses: number; ties: number } }) => Promise<void>;
+  selectedLeagueId: string | null;
+  selectedLeagueName: string;
+  initialData?: { id: string; leagueId: string; name: string; location: string; record?: { wins: number; losses: number; ties: number } } | null;
   mode?: 'add' | 'edit';
 }
 
-const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onSave, initialData = null, mode = 'add' }) => {
+const AddTeamModal: React.FC<AddTeamModalProps> = ({ isVisible, onClose, onSave, selectedLeagueId, selectedLeagueName, initialData = null, mode = 'add' }) => {
   const [name, setName] = useState('');
-  const [country, setCountry] = useState('');
+  const [location, setLocation] = useState('');
   const [id, setId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
- 
-  // useEffect: populate modal fields from initialData or reset when modal opens
   React.useEffect(() => {
     if (initialData) {
       setId(initialData.id ?? '');
       setName(initialData.name ?? '');
-      setCountry(initialData.country ?? '');
+      setLocation(initialData.location ?? '');
     } else if (mode === 'add') {
       setId('');
       setName('');
-      setCountry('');
+      setLocation('');
     }
   }, [initialData, mode, isVisible]);
 
-// Fn: handleSave - validate inputs, call onSave, reset fields and close modal
   const handleSave = async () => {
-    if (!id.trim() || !name.trim() || !country.trim()) {
-      Alert.alert('Missing Information', 'Please enter an id, league name and country.');
+    if (!id.trim() || !name.trim() || !location.trim()) {
+      Alert.alert('Missing Information', 'Please enter an id, team name and location.');
+      return;
+    }
+    if (!selectedLeagueId) {
+      Alert.alert('Error', 'No league selected. Cannot add team.');
       return;
     }
 
     setIsSaving(true);
     try {
-    await onSave({ id: id.trim(), name, country });
-      Alert.alert('Success', 'League added successfully!');
+      await onSave({
+        id: id.trim(),
+        leagueId: selectedLeagueId,
+        name,
+        location,
+        record: { wins: 0, losses: 0, ties: 0 },
+      });
+      Alert.alert('Success', 'Team added successfully!');
       setName('');
-      setCountry('');
-    setId('');
+      setLocation('');
+      setId('');
       onClose();
     } catch (error) {
-      console.error('Error adding league:', error);
-      Alert.alert('Error', 'Failed to add league. Please try again.');
+      console.error('Error adding team:', error);
+      Alert.alert('Error', 'Failed to add team. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -65,11 +71,11 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
     >
       <View style={modalStyles.centeredView}>
         <View style={modalStyles.modalView}>
-          <Text style={modalStyles.modalTitle}>{mode === 'edit' ? 'Edit League' : 'Add New League'}</Text>
+          <Text style={modalStyles.modalTitle}>{mode === 'edit' ? 'Edit Team' : `Add New Team to ${selectedLeagueName}`}</Text>
 
           <TextInput
             style={modalStyles.input}
-            placeholder="League Name"
+            placeholder="Team Name"
             placeholderTextColor="#666"
             value={name}
             onChangeText={setName}
@@ -77,7 +83,7 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
           />
           <TextInput
             style={modalStyles.input}
-            placeholder="League ID (unique key)"
+            placeholder="Team ID (unique key)"
             placeholderTextColor="#666"
             value={id}
             onChangeText={setId}
@@ -85,10 +91,10 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
           />
           <TextInput
             style={modalStyles.input}
-            placeholder="Country"
+            placeholder="Location"
             placeholderTextColor="#666"
-            value={country}
-            onChangeText={setCountry}
+            value={location}
+            onChangeText={setLocation}
             editable={!isSaving}
           />
 
@@ -108,7 +114,7 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
               {isSaving ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={modalStyles.textStyle}>{mode === 'edit' ? 'Save Changes' : 'Save League'}</Text>
+                <Text style={modalStyles.textStyle}>{mode === 'edit' ? 'Save Changes' : 'Save Team'}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -181,4 +187,4 @@ const modalStyles = StyleSheet.create({
   },
 });
 
-export default AddLeagueModal;
+export default AddTeamModal;

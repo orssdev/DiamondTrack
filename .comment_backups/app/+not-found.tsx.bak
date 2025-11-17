@@ -1,8 +1,6 @@
-// File: app/+not-found.tsx
 import { View, StyleSheet } from 'react-native';
 import { Link, Stack } from 'expo-router';
 
-// Exported Fn: NotFoundScreen
 export default function NotFoundScreen() {
   return (
     <>

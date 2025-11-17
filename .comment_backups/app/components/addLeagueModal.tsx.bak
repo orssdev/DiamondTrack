@@ -1,5 +1,4 @@
-// File: app/components/addLeagueModal.tsx
-
+// components/AddLeagueModal.tsx
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -7,9 +6,9 @@ interface AddLeagueModalProps {
   isVisible: boolean;
   onClose: () => void;
   onSave: (leagueData: { id: string; name: string; country: string }) => Promise<void>;
- 
+  // optional initial data for edit
   initialData?: { id: string; name: string; country: string } | null;
- 
+  // mode: 'add' | 'edit'
   mode?: 'add' | 'edit';
 }
 
@@ -19,8 +18,7 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
   const [id, setId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
- 
-  // useEffect: populate modal fields from initialData or reset when modal opens
+  // populate fields when initialData changes (edit mode)
   React.useEffect(() => {
     if (initialData) {
       setId(initialData.id ?? '');
@@ -33,7 +31,6 @@ const AddLeagueModal: React.FC<AddLeagueModalProps> = ({ isVisible, onClose, onS
     }
   }, [initialData, mode, isVisible]);
 
-// Fn: handleSave - validate inputs, call onSave, reset fields and close modal
   const handleSave = async () => {
     if (!id.trim() || !name.trim() || !country.trim()) {
       Alert.alert('Missing Information', 'Please enter an id, league name and country.');

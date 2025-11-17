@@ -1,21 +1,22 @@
-// Centralized color palette for DiamondTrack
-// Use these to keep greens and blues consistent across components
+// File: app/theme/colors.ts
+
+
 
 export const colors = {
-  // Backgrounds
-  background: '#071524', // dark navy background
-  surface: '#0f1720',    // slightly lighter surface
+ 
+  background: '#071524',
+  surface: '#0f1720',   
 
-  // Text
+ 
   textPrimary: '#E6EEF7',
   textMuted: '#9CA3AF',
   textSubtle: '#Cbd5e1',
 
-  // Accents
-  green: '#34D399',      // primary accent
-  blue: '#1D4ED8',       // optional blue accent if needed
+ 
+  green: '#34D399',     
+  blue: '#1D4ED8',      
 
-  // Borders / dividers
+ 
   borderSubtle: 'rgba(255,255,255,0.03)',
   borderMuted: 'rgba(255,255,255,0.06)'
 } as const;

@@ -1,11 +1,9 @@
-// File: app/components/StatsSheet.tsx
 import { useRouter } from 'expo-router';
 import { get, onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { db } from '../../firebaseConfig';
 
-// Exported Fn: StatsSheet
 export default function StatsSheet({ visible, onClose, homeId, awayId, currentBatSlot }: { visible: boolean; onClose: () => void; homeId?: string; awayId?: string; currentBatSlot?: number }) {
   const [selectedTeam, setSelectedTeam] = useState<'home' | 'away'>('home');
   const [lineup, setLineup] = useState<Array<{ slot: number; playerId?: string; player?: any }>>([]);
@@ -13,24 +11,23 @@ export default function StatsSheet({ visible, onClose, homeId, awayId, currentBa
 
   const teamId = selectedTeam === 'home' ? homeId : awayId;
 
-  // Subscribe to the selected team's lineup and to each player node for live updates, cleaning up subs on change
   useEffect(() => {
   let unsub: (() => void) | null = null;
- 
+  // cleanup for player subscriptions created inside the onValue handler
   let playerSubsCleanup: (() => void) | null = null;
     if (!teamId) { setLineup([]); return; }
     const r = ref(db, `Teams/${teamId}/lineup`);
     unsub = onValue(r, (snap) => {
       const val = snap.val() || {};
-     
+      // Expecting keys '1' through '9' mapped to playerId
       const arr: Array<{ slot: number; playerId?: string }> = [];
       for (let i = 1; i <= 9; i++) {
         const pid = val && (val[i] || val[String(i)]);
         arr.push({ slot: i, playerId: pid });
       }
 
-     
-     
+      // For live updates, subscribe to each player node and update lineup entries when they change
+      // clean up any prior player subscriptions first
       if (playerSubsCleanup) {
         try { playerSubsCleanup(); } catch (e) {}
         playerSubsCleanup = null;
@@ -42,7 +39,7 @@ export default function StatsSheet({ visible, onClose, homeId, awayId, currentBa
         const pRef = ref(db, `Players/${entry.playerId}`);
         const unsubP = onValue(pRef, (psnap) => {
           const p = psnap.val();
-         
+          // only keep if team matches
           if (p && p.teamId === teamId) results[idx].player = { id: entry.playerId, ...p };
           else results[idx].player = null;
           setLineup([...results]);
@@ -50,16 +47,14 @@ export default function StatsSheet({ visible, onClose, homeId, awayId, currentBa
         subs[entry.playerId] = unsubP;
       });
 
-     
+      // set initial lineup (will be updated by subs)
       setLineup(results);
 
-     
-  // Unsubscribe from any player listeners created for the lineup entries
-// Fn: cleanup
-  const cleanup = () => {
+      // cleanup function should also remove player subs
+      const cleanup = () => {
         Object.values(subs).forEach(u => { try { u(); } catch (e) {} });
       };
-     
+      // store cleanup in closure variable so outer return can call it safely
       playerSubsCleanup = cleanup;
     });
     return () => { 

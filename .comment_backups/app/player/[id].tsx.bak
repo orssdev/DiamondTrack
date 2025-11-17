@@ -1,4 +1,3 @@
-// File: app/player/[id].tsx
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DatabaseReference, DataSnapshot, get, onValue, ref, set } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
@@ -32,7 +31,6 @@ interface Player {
   };
 }
 
-// Exported Fn: PlayerScreen
 export default function PlayerScreen() {
   const params = useLocalSearchParams();
   const id = (params as any).id as string | undefined;
@@ -50,7 +48,7 @@ export default function PlayerScreen() {
 
   const [player, setPlayer] = useState<Player>({ id: '', name: '', number: 0, teamId: '', position: '' });
 
- 
+  // editable raw stats map (strings for TextInput)
   const [statsEditable, setStatsEditable] = useState<{ [k:string]: string }>({
     plateAppearances: '0',
     atBats: '0',
@@ -68,12 +66,11 @@ export default function PlayerScreen() {
     runs: '0',
   });
 
-  // If creating a new player from a team/slot, prefill team and infer league; also subscribe to leagues list
   useEffect(() => {
-   
+    // if creating a new player from another screen, prefill teamId and league
     if (isNew && preTeamParam) {
       setPlayer(p => ({ ...p, teamId: preTeamParam }));
-     
+      // find team to get leagueId and set selectedLeagueId
       (async () => {
         try {
           const tSnap = await get(ref(db, 'Teams'));
@@ -93,9 +90,8 @@ export default function PlayerScreen() {
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to this player's record for live updates when editing/viewing an existing player
   useEffect(() => {
-   
+    // if editing existing player, load player
     if (!isNew && id) {
       setLoading(true);
       const playerRef = ref(db, `Players/${id}`);
@@ -121,7 +117,7 @@ export default function PlayerScreen() {
             strikeouts: String(stats.strikeouts ?? 0),
             runs: String(stats.runs ?? 0),
           });
-         
+          // infer league from team (one-time read)
           (async () => {
             try {
               const tSnap = await get(ref(db, 'Teams'));
@@ -142,11 +138,10 @@ export default function PlayerScreen() {
     }
   }, [id]);
 
-  // Subscribe to Teams list and update when player's team selection changes
   useEffect(() => {
-   
+    // load teams for selected league (if player has team selected, find league)
     if (player.teamId) {
-     
+      // find team to get leagueId
       const teamRef = ref(db, 'Teams');
       const unsubscribe = onValue(teamRef, (snap: DataSnapshot) => {
         const data = snap.val();
@@ -155,7 +150,7 @@ export default function PlayerScreen() {
       });
       return () => unsubscribe();
     } else {
-     
+      // load all teams (so user can choose league then team)
       const teamRef = ref(db, 'Teams');
       const unsubscribe = onValue(teamRef, (snap: DataSnapshot) => {
         const data = snap.val();
@@ -168,8 +163,6 @@ export default function PlayerScreen() {
 
   const teamsForLeague = (leagueId?: string) => teams.filter(t => t.leagueId === (leagueId ?? selectedLeagueId ?? ''));
 
-// Save the player record and attach to lineup slot if created from a slot param
-// Fn: handleSave
   const handleSave = async () => {
     if (!player.id && isNew) {
       Alert.alert('Missing ID', 'Please provide an id for the player.');
@@ -202,7 +195,7 @@ export default function PlayerScreen() {
         position: player.position,
         stats: statsToSave,
       });
-     
+      // if created from a slot param, attach to that lineup slot
       if (isNew && preTeamParam && preSlotParam) {
         try {
           await set(ref(db, `Teams/${preTeamParam}/lineup/${preSlotParam}`), player.id);
@@ -267,7 +260,7 @@ export default function PlayerScreen() {
         enabled={mode === 'edit'}
       />
 
-      {}
+      {/* Derived offensive rates (computed, not stored) */}
       {(() => {
         const pa = Number(statsEditable.plateAppearances || 0);
         const ab = Number(statsEditable.atBats || 0);
@@ -278,9 +271,9 @@ export default function PlayerScreen() {
         const walks = Number(statsEditable.walks || 0);
         const hbp = Number(statsEditable.hitByPitch || 0);
         const sf = Number(statsEditable.sacFlies || 0);
-        const tb = h - doubles - triples - hrs + (doubles * 2) + (triples * 3) + (hrs * 4);
+        const tb = h - doubles - triples - hrs + (doubles * 2) + (triples * 3) + (hrs * 4); // simplified total bases
         const ba = ab > 0 ? (h / ab) : 0;
-        const obpDen = pa > 0 ? (pa + hbp + sf) : 0;
+        const obpDen = pa > 0 ? (pa + hbp + sf) : 0; // approximated denominator
         const obp = obpDen > 0 ? ((h + walks + hbp) / obpDen) : 0;
         const slg = ab > 0 ? (tb / ab) : 0;
         return (
@@ -295,7 +288,7 @@ export default function PlayerScreen() {
         );
       })()}
 
-      {}
+      {/* Raw editable stats (persisted). These update live via onValue and can be edited in edit mode. */}
       <Text style={styles.label}>Plate Appearances</Text>
       <TextInput style={styles.input} value={statsEditable.plateAppearances} onChangeText={(v) => setStatsEditable(s => ({...s, plateAppearances: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
 

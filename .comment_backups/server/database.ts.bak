@@ -1,5 +1,4 @@
-// File: server/database.ts
-
+// server/database.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LEAGUES_KEY = 'leagues';
@@ -10,7 +9,7 @@ export type League = { id: number; name: string };
 export type Team = { id: number; name: string; league_id: number };
 export type Player = { id: number; name: string; position: string; team_id: number };
 
-
+// Initialize default data
 export async function initDatabase() {
   const leagues = await AsyncStorage.getItem(LEAGUES_KEY);
   if (!leagues) {
@@ -49,7 +48,7 @@ export async function initDatabase() {
   }
 }
 
-
+// Getters
 export async function getLeagues(): Promise<League[]> {
   const leagues = await AsyncStorage.getItem(LEAGUES_KEY);
   return leagues ? JSON.parse(leagues) : [];
@@ -69,7 +68,7 @@ export async function getPlayersByTeam(team_id: number): Promise<Player[]> {
     : [];
 }
 
-
+// Add a player
 export async function addPlayer(player: Player) {
   const players = await AsyncStorage.getItem(PLAYERS_KEY);
   const arr: Player[] = players ? JSON.parse(players) : [];

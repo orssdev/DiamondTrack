@@ -1,4 +1,3 @@
-// File: app/GameScreen.tsx
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { onValue, ref, get, set, update } from 'firebase/database';
 import { on as onEvent, emit } from './utils/events';
@@ -22,7 +21,6 @@ import { colors } from './theme/colors';
 
 const { width, height } = Dimensions.get("window");
 
-// Exported Fn: GameScreen
 export default function GameScreen() {
   const params = useLocalSearchParams();
     const homeId = params.home as string | undefined;
@@ -31,25 +29,25 @@ export default function GameScreen() {
     const [homeName, setHomeName] = useState<string>('');
     const [awayName, setAwayName] = useState<string>('');
     const [loading, setLoading] = useState(true);
-   
-    const [balls, setBalls] = useState<number>(0);
-    const [strikes, setStrikes] = useState<number>(0);
-    const [outs, setOuts] = useState<number>(0);
+    // interactive state
+    const [balls, setBalls] = useState<number>(0); // 0..3
+    const [strikes, setStrikes] = useState<number>(0); // 0..2
+    const [outs, setOuts] = useState<number>(0); // 0..2
 
-   
+    // game-wide state
     const [homeRuns, setHomeRuns] = useState<number>(0);
     const [awayRuns, setAwayRuns] = useState<number>(0);
     const [inning, setInning] = useState<number>(1);
-    const [isTop, setIsTop] = useState<boolean>(true);
+    const [isTop, setIsTop] = useState<boolean>(true); // top of inning initially
     const [runners, setRunners] = useState<{first:boolean; second:boolean; third:boolean}>({ first:false, second:false, third:false });
 
-   
+    // history stack for undo - store full game state snapshot
     const [history, setHistory] = useState<Array<any>>([]);
 
     const [showOutcomeModal, setShowOutcomeModal] = useState<boolean>(false);
       const [showStatsSheet, setShowStatsSheet] = useState<boolean>(false);
       const [showHeaderMenu, setShowHeaderMenu] = useState<boolean>(false);
-   
+    // runner confirmation modal state
     const [pendingRunnerPrompts, setPendingRunnerPrompts] = useState<Array<'first'|'second'|'third'>>([]);
     const [pendingOutcomeResult, setPendingOutcomeResult] = useState<OutcomeResult | null>(null);
   const [pendingOutcomeKey, setPendingOutcomeKey] = useState<string | null>(null);
@@ -57,7 +55,7 @@ export default function GameScreen() {
     const [currentPromptIndex, setCurrentPromptIndex] = useState<number>(0);
     const router = useRouter();
 
-   
+    // field images map (key: first-second-third)
     const fieldImages: Record<string, any> = {
       '000': require("../assets/images/BaseballField_E.png"),
       '100': require("../assets/images/BaseballField_1.png"),
@@ -74,8 +72,7 @@ export default function GameScreen() {
       return fieldImages[key] ?? fieldImages['000'];
     };
   
-  // Subscribes to home and away team records to load display names and clear the loading state
-  useEffect(() => {
+    useEffect(() => {
       let unsubHome: any = () => {};
       let unsubAway: any = () => {};
       if (homeId) {
@@ -98,7 +95,6 @@ export default function GameScreen() {
       return () => { unsubHome(); unsubAway(); };
     }, [homeId, awayId]);
 
-    // Listens for header menu events (from other UI) and opens the game header menu when requested
     useEffect(() => {
       const unsub = onEvent('openMenu', (payload) => {
         if (payload === 'game') setShowHeaderMenu(true);
@@ -106,27 +102,25 @@ export default function GameScreen() {
       return unsub;
     }, []);
 
-   
+    // current batter slot and display name
     const [currentBatSlot, setCurrentBatSlot] = useState<number>(1);
     const [currentBatterDisplay, setCurrentBatterDisplay] = useState<string>('');
-   
+    // persist per-team current batter slots so switching sides restores correct batter
     const [homeCurrentBat, setHomeCurrentBat] = useState<number>(1);
     const [awayCurrentBat, setAwayCurrentBat] = useState<number>(1);
 
-  // When the batting side, lineup slot, or cached slots change, subscribe to the lineup slot
-  // and update the current batter display string for the play bar.
-  useEffect(() => {
+    useEffect(() => {
       const battingTeamId = isTop ? awayId : homeId;
-     
+      // when switching sides, set currentBatSlot to saved value for that team
       if (!battingTeamId) { setCurrentBatterDisplay(''); return; }
       const saved = isTop ? awayCurrentBat : homeCurrentBat;
       setCurrentBatSlot(saved || 1);
-     
+      // read lineup slot -> playerId, then fetch player name
       const slotRef = ref(db, `Teams/${battingTeamId}/lineup/${currentBatSlot}`);
       let unsubP: any = () => {};
       const unsubSlot = onValue(slotRef, (snap) => {
         const pid = snap.val();
-       
+        // cleanup previous player listener
         try { unsubP(); } catch (e) {}
         if (!pid) { setCurrentBatterDisplay(`${currentBatSlot}. (empty)`); return; }
         const pSnapRef = ref(db, `Players/${pid}`);
@@ -139,9 +133,8 @@ export default function GameScreen() {
       return () => { try { unsubSlot(); } catch (e) {}; try { unsubP(); } catch (e) {} };
     }, [homeId, awayId, isTop, currentBatSlot, homeCurrentBat, awayCurrentBat]);
 
-   
-  // Subscribes to each team's persisted currentBatSlot so local cached slots stay in sync
-  useEffect(() => {
+    // watch Teams/<team>/currentBatSlot so changes persist across screens
+    useEffect(() => {
       let unsubHome: any = () => {};
       let unsubAway: any = () => {};
       if (homeId) {
@@ -161,12 +154,10 @@ export default function GameScreen() {
       return () => { unsubHome(); unsubAway(); };
     }, [homeId, awayId]);
 
-// Reset in-memory game state and persist both teams' currentBatSlot = 1 so restart acts like a fresh game
-// Fn: handleRestartGame
     const handleRestartGame = () => {
-     
+      // reset only the in-memory game state
       setHomeRuns(0); setAwayRuns(0); setInning(1); setIsTop(true); setBalls(0); setStrikes(0); setOuts(0); setRunners({ first:false, second:false, third:false });
-     
+      // also reset persisted current batter slot for both teams so a restart behaves like a fresh game
       try {
         if (homeId) {
           const hRef = ref(db, `Teams/${homeId}/currentBatSlot`);
@@ -179,15 +170,13 @@ export default function GameScreen() {
           setAwayCurrentBat(1);
         }
       } catch (e) {
-       
+        // ignore persistence errors for now
       }
       setShowHeaderMenu(false);
     };
 
 
-// Prompt to confirm ending the game and navigate back to the Start screen if confirmed
-// Fn: handleEndGame
-  const handleEndGame = () => {
+    const handleEndGame = () => {
       Alert.alert('Confirm end game','This will finalize the game and apply stats to players. Proceed?', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'End Game', style: 'default', onPress: () => { {router.push('/start'); } setShowHeaderMenu(false); } }
@@ -196,7 +185,7 @@ export default function GameScreen() {
   
     if (loading) return <View style={styles.centered}><ActivityIndicator /></View>;
 
- 
+  // OUTCOMES
   type RunnerState = { first: boolean; second: boolean; third: boolean };
   type OutcomeResult = { balls: number; strikes: number; outs: number; runners: RunnerState; runsScored: number };
   type Outcome = { key: string; label: string; effect: (s: { balls:number; strikes:number; outs:number; runners: RunnerState }) => OutcomeResult };
@@ -271,15 +260,11 @@ export default function GameScreen() {
 
     ];
 
-// Push a snapshot of the current game state onto the undo history stack
-// Fn: pushHistory
-  const pushHistory = () => {
+    const pushHistory = () => {
       setHistory(h => [...h, { balls, strikes, outs, runners: {...runners}, homeRuns, awayRuns, inning, isTop }]);
     };
 
-// Revert to the previous game state snapshot from the history stack (in-memory only)
-// Fn: undo
-  const undo = () => {
+    const undo = () => {
       setHistory(h => {
         if (h.length === 0) return h;
         const last = h[h.length - 1] as any;
@@ -295,9 +280,7 @@ export default function GameScreen() {
       });
     };
 
-// Handle a ball event: record to history and convert to a walk if it was ball four
-// Fn: handleBall
-  const handleBall = () => {
+    const handleBall = () => {
       pushHistory();
       if (balls + 1 >= 4) {
         applyOutcome('walk');
@@ -306,9 +289,7 @@ export default function GameScreen() {
       setBalls(b => Math.min(3, b + 1));
     };
 
-// Handle a strike event: record to history and convert to strikeout on third strike
-// Fn: handleStrike
-  const handleStrike = () => {
+    const handleStrike = () => {
       pushHistory();
       if (strikes + 1 >= 3) {
         applyOutcome('strikeout');
@@ -317,8 +298,7 @@ export default function GameScreen() {
       setStrikes(s => Math.min(2, s + 1));
     };
 
-  // Apply an outcome to the game state (compute result, prompt runner moves if needed)
-  const applyOutcome = (outcomeKey: string) => {
+    const applyOutcome = (outcomeKey: string) => {
       const outcome = OUTCOMES.find(o => o.key === outcomeKey);
       if (!outcome) return;
       pushHistory();
@@ -328,13 +308,13 @@ export default function GameScreen() {
       const post = result.runners;
       const toPrompt: Array<'first'|'second'|'third'> = [];
 
-     
+      // If outcome is a home run we already know everyone scores -> skip prompting
       if (outcomeKey === 'home_run') {
         commitOutcomeResult(result, outcomeKey);
         return;
       }
 
-     
+      // Only prompt for bases where there was a runner before and their occupancy changed
       (['first','second','third'] as Array<'first'|'second'|'third'>).forEach((base) => {
         if (pre[base] && pre[base] !== post[base]) {
           toPrompt.push(base);
@@ -349,13 +329,12 @@ export default function GameScreen() {
         setPendingOutcomeKey(outcomeKey);
         setPendingRunnerPrompts(toPrompt);
         setCurrentPromptIndex(0);
-       
+        // open a focused runner prompt modal by reusing showOutcomeModal area
         setShowOutcomeModal(false);
       }
     };
 
-  // Commit the computed outcome result: update counts, runs, runners, player stats, and advance batter
-  const commitOutcomeResult = (result: OutcomeResult, outcomeKeyParam?: string | null) => {
+    const commitOutcomeResult = (result: OutcomeResult, outcomeKeyParam?: string | null) => {
       setBalls(result.balls);
       setStrikes(result.strikes);
       setOuts(result.outs);
@@ -366,14 +345,14 @@ export default function GameScreen() {
       setRunners(result.runners);
       setShowOutcomeModal(false);
 
-     
+      // Update player stats depending on outcome
       const battingTeamId = isTop ? awayId : homeId;
       const battingSlot = currentBatSlot;
       const outcomeKey = outcomeKeyParam ?? pendingOutcomeKey;
-     
+      // clear pending outcome key
       setPendingOutcomeKey(null);
       if (battingTeamId && outcomeKey) {
-       
+        // only treat these as final plate appearances
         const finalOutcomes = new Set(['single','double','home_run','walk','strikeout','groundout','flyout']);
         const abOutcomes = new Set(['single','double','home_run','strikeout','groundout','flyout']);
         const hitSingles = new Set(['single']);
@@ -386,24 +365,24 @@ export default function GameScreen() {
           get(slotRef).then(snap => {
             const pid = snap.val();
             if (!pid) return;
-           
+            // PA always increment for final outcomes
             updatePlayerStats(pid, { plateAppearances: 1 });
-           
+            // at-bat increments for abOutcomes
             if (abOutcomes.has(outcomeKey)) updatePlayerStats(pid, { atBats: 1 });
-           
+            // hits and specific hit types
             if (hitSingles.has(outcomeKey)) updatePlayerStats(pid, { hits: 1 });
             if (hitDoubles.has(outcomeKey)) updatePlayerStats(pid, { hits: 1, doubles: 1 });
             if (hitTriples.has(outcomeKey)) updatePlayerStats(pid, { hits: 1, triples: 1 });
             if (hitHR.has(outcomeKey)) updatePlayerStats(pid, { hits: 1, homeRuns: 1 });
-           
+            // walks
             if (outcomeKey === 'walk') updatePlayerStats(pid, { walks: 1 });
-           
+            // strikeouts
             if (outcomeKey === 'strikeout') updatePlayerStats(pid, { strikeouts: 1 });
-           
+            // RBIs: approximate by runs scored on the play
             if (result.runsScored && result.runsScored > 0) updatePlayerStats(pid, { rbis: result.runsScored });
           }).catch(() => {});
 
-         
+          // advance batter slot and persist
           advanceBatterSlot(battingTeamId);
         }
       }
@@ -424,8 +403,7 @@ export default function GameScreen() {
       }
     };
 
-  // Handle a user's selection for where a prompted runner moved (update pending result)
-  const handleRunnerChoice = (base: 'first'|'second'|'third', choice: 'held'|'to2'|'to3'|'score'|'to1') => {
+    const handleRunnerChoice = (base: 'first'|'second'|'third', choice: 'held'|'to2'|'to3'|'score'|'to1') => {
       if (!pendingOutcomeResult || !pendingPreRunners) return;
       const r = { ...pendingOutcomeResult.runners } as RunnerState;
       let additionalRuns = 0;
@@ -446,14 +424,14 @@ export default function GameScreen() {
         r[base] = false;
       }
 
-     
+      // decrement runsScored in pendingOutcomeResult by replacing with new object
       const newResult: OutcomeResult = { ...pendingOutcomeResult, runners: r, runsScored: (pendingOutcomeResult.runsScored || 0) + additionalRuns };
       setPendingOutcomeResult(newResult);
 
-     
+      // move to next prompt or commit
       const nextIndex = currentPromptIndex + 1;
       if (nextIndex >= pendingRunnerPrompts.length) {
-       
+        // all prompts answered -> commit
         setPendingRunnerPrompts([]);
         setPendingPreRunners(null);
         setCurrentPromptIndex(0);
@@ -463,45 +441,43 @@ export default function GameScreen() {
       }
     };
 
-   
-  // Increment numeric player stat fields atomically on the Player record in the DB
-  const updatePlayerStats = async (playerId: string, increments: { [k:string]: number }) => {
+    // helper: increment numeric fields on a player record (pa, hits, etc.)
+    const updatePlayerStats = async (playerId: string, increments: { [k:string]: number }) => {
       try {
         const pRef = ref(db, `Players/${playerId}`);
         const snap = await get(pRef);
         const p = snap.val() || {};
         const stats = p.stats || {};
         const updates: any = {};
-       
+        // write into nested stats keys so player screens read stats.statsKey
         Object.keys(increments).forEach(k => {
           const current = typeof stats[k] === 'number' ? stats[k] : 0;
           updates[`stats/${k}`] = current + increments[k];
         });
         await update(pRef, updates);
       } catch (e) {
-       
+        // ignore for now
       }
     };
 
-   
-  // Advance the team's persisted currentBatSlot (wrap at 9) and update local cache
-  const advanceBatterSlot = async (teamId: string) => {
+    // advance the batter slot for a team (1..9, wraps) and persist to Teams/<team>/currentBatSlot
+    const advanceBatterSlot = async (teamId: string) => {
       try {
         const curRef = ref(db, `Teams/${teamId}/currentBatSlot`);
         const snap = await get(curRef);
         const cur = typeof snap.val() === 'number' ? snap.val() : (snap.val() ? Number(snap.val()) : 1);
         const next = cur >= 9 ? 1 : cur + 1;
         await set(curRef, next);
-       
+        // also update local cached values
         if (teamId === homeId) setHomeCurrentBat(next);
         if (teamId === awayId) setAwayCurrentBat(next);
       } catch (e) {
-       
+        // ignore
       }
     };
   return (
     <View style={styles.screen}>
-      {}
+      {/* Info row (three columns) */}
       <View style={styles.infoRow}>
         <View style={styles.infoCell}>
           <Text style={styles.infoTitle}>{homeId || homeName || 'Home'}</Text>
@@ -517,7 +493,7 @@ export default function GameScreen() {
         </View>
       </View>
 
-      {}
+      {/* Thin row for Balls / Strikes / Outs (dots) */}
       <View style={styles.countRow}>
         <View style={styles.countGroup}>
           <Text style={styles.countLabel}>B</Text>
@@ -547,7 +523,7 @@ export default function GameScreen() {
         </View>
       </View>
 
-      {}
+      {/* Baseball field image in the center */}
       <View style={styles.fieldContainer}>
         <Image
           source={getFieldImage(runners)}
@@ -556,7 +532,7 @@ export default function GameScreen() {
         />
       </View>
 
-      {}
+      {/* 2x2 grid of action buttons */}
       <View style={styles.buttonGrid}>
         <TouchableOpacity
           style={styles.gridButton}
@@ -587,7 +563,7 @@ export default function GameScreen() {
         </TouchableOpacity>
       </View>
 
-      {}
+      {/* Outcome modal (full-screen overlay) */}
       <Modal visible={showOutcomeModal} transparent animationType="fade" onRequestClose={() => setShowOutcomeModal(false)}>
         <TouchableWithoutFeedback onPress={() => setShowOutcomeModal(false)}>
           <View style={styles.menuOverlay} />
@@ -608,7 +584,7 @@ export default function GameScreen() {
         </View>
       </Modal>
 
-      {}
+      {/* Runner advance prompt modal (sequential) */}
       <Modal visible={pendingRunnerPrompts.length > 0} transparent animationType="fade" onRequestClose={() => {}}>
         <TouchableWithoutFeedback>
           <View style={styles.menuOverlay} />
@@ -618,12 +594,12 @@ export default function GameScreen() {
             <Text style={{fontWeight:'bold', marginBottom:8}}>Runner advancement</Text>
             {pendingRunnerPrompts.length > 0 && pendingPreRunners && (
               <View>
-                {}
+                {/* current base being prompted */}
                 <Text style={styles.runnerPrompt}>Runner on {pendingRunnerPrompts[currentPromptIndex]} — where did they go?</Text>
-                {}
+                {/* compute allowed choices depending on base */}
                 {(() => {
                   const base = pendingRunnerPrompts[currentPromptIndex];
-                 
+                  // allowed choices default: held and scored
                   const choices: Array<{ key: string; label: string }> = [];
                   choices.push({ key: 'held', label: 'Held at base' });
                   if (base === 'first') {
@@ -648,7 +624,7 @@ export default function GameScreen() {
         </View>
       </Modal>
 
-      {}
+      {/* Bottom play bar with current player and up-arrow button */}
       <TouchableOpacity
         style={styles.playBar}
         onPress={() => setShowStatsSheet(true)}
@@ -659,7 +635,7 @@ export default function GameScreen() {
 
       <StatsSheet visible={showStatsSheet} onClose={() => setShowStatsSheet(false)} homeId={homeId} awayId={awayId} />
 
-      {}
+      {/* Header menu modal for GameScreen */}
       <Modal visible={showHeaderMenu} transparent animationType="fade" onRequestClose={() => setShowHeaderMenu(false)}>
         <TouchableWithoutFeedback onPress={() => setShowHeaderMenu(false)}>
           <View style={styles.menuOverlay} />
@@ -739,7 +715,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 6,
-    backgroundColor: colors.green,
+    backgroundColor: colors.green, // green accent
     marginRight: 6,
   },
   dotEmpty: {
