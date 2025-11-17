@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { colors } from './theme/colors';
-import { on as onEvent, emit } from './utils/events';
+import { emit } from './utils/events';
 
 // Exported Fn: RootLayout
 export default function RootLayout() {
