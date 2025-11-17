@@ -6,6 +6,7 @@ import { ActivityIndicator, FlatList, Modal, ScrollView, StyleSheet, Text, Touch
 import { db } from '../firebaseConfig';
 import AddLeagueModal from './components/addLeagueModal';
 import AddTeamModal from './components/addTeamModal';
+import { colors } from './theme/colors';
 
 interface League {
   id: string;
@@ -247,7 +248,7 @@ export default function StatsScreen() {
               setOpenMenu(null);
             }
           }}>
-            <Text style={[styles.popupItemText, {color: 'red'}]}>Delete</Text>
+            <Text style={[styles.popupItemText, {color: colors.textMuted}]}>Delete</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -281,7 +282,7 @@ export default function StatsScreen() {
         </TouchableOpacity>
       </View>
       {loadingLeagues ? (
-        <ActivityIndicator size="small" color="#0000ff" />
+        <ActivityIndicator size="small" color={colors.green} />
       ) : (
         <FlatList
           data={leagues}
@@ -301,7 +302,7 @@ export default function StatsScreen() {
             </TouchableOpacity>
           </View>
           {loadingTeams ? (
-            <ActivityIndicator size="small" color="#0000ff" />
+            <ActivityIndicator size="small" color={colors.green} />
           ) : (
             <FlatList
               data={filteredTeams}
@@ -329,7 +330,7 @@ export default function StatsScreen() {
             );
           })()}
           {loadingPlayers ? (
-            <ActivityIndicator size="small" color="#0000ff" />
+            <ActivityIndicator size="small" color={colors.green} />
           ) : (
             <FlatList
               data={filteredPlayers}
@@ -419,7 +420,7 @@ export default function StatsScreen() {
                         setOpenMenu(null);
                       }
                     }}>
-                      <Text style={[styles.popupItemText, {color: 'red'}]}>Delete</Text>
+                      <Text style={[styles.popupItemText, {color: colors.textMuted}]}>Delete</Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -446,7 +447,7 @@ export default function StatsScreen() {
                         setOpenMenu(null);
                       }
                     }}>
-                      <Text style={[styles.popupItemText, {color: 'red'}]}>Delete</Text>
+                      <Text style={[styles.popupItemText, {color: colors.textMuted}]}>Delete</Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -472,7 +473,7 @@ export default function StatsScreen() {
                         setOpenMenu(null);
                       }
                     }}>
-                      <Text style={[styles.popupItemText, {color: 'red'}]}>Delete</Text>
+                      <Text style={[styles.popupItemText, {color: colors.textMuted}]}>Delete</Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -491,11 +492,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     paddingHorizontal: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: colors.background,
   },
   menuOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)'
+    backgroundColor: 'rgba(0,0,0,0.6)'
   },
   menuModalContainer: {
     position: 'absolute',
@@ -508,12 +509,12 @@ const styles = StyleSheet.create({
   },
   menuModal: {
     width: 280,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 8,
     padding: 12,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.green,
   },
   centered: {
     flex: 1,
@@ -530,18 +531,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.textPrimary,
   },
   addButton: { 
-    backgroundColor: '#007bff', 
+    backgroundColor: colors.green, 
     borderRadius: 15,
     width: 30,
     height: 30,
     justifyContent: 'space-around',
-    alignItems: 'center'
+    alignItems: 'center',
+    shadowColor: 'rgba(0,0,0,0.9)',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 6,
   },
     addButtonText: {
-    color: 'white',
+    color: colors.background,
     fontSize: 20,
     lineHeight: 22, 
     fontWeight: 'bold',
@@ -551,25 +557,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     marginBottom: 5,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.borderSubtle,
   },
   selectedItem: {
-    backgroundColor: '#e6f7ff',
-    borderColor: '#007bff',
+    backgroundColor: colors.surface,
+    borderColor: colors.green,
   },
   itemText: {
     fontSize: 16,
-    color: '#555',
+    color: colors.textPrimary,
   },
   errorText: {
-    color: 'red',
+    color: colors.green,
     fontSize: 16,
   },
   emptyText: {
     fontSize: 14,
-    color: '#888',
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 10,
   },
@@ -579,41 +585,47 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 20,
-    color: '#333',
+    color: colors.textPrimary,
   },
   popupMenu: {
     position: 'absolute',
     right: 10,
     top: 36,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 6,
     padding: 8,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.green,
     zIndex: 999,
   },
   popupTitle: {
     fontWeight: 'bold',
     marginBottom: 6,
+    color: colors.textPrimary,
   },
   popupItem: {
     paddingVertical: 6,
   },
   popupItemText: {
     fontSize: 16,
-    color: '#007bff',
+    color: colors.green,
   },
   addPlayerButton: {
     marginTop: 12,
     alignSelf: 'center',
-    backgroundColor: '#007bff',
+    backgroundColor: colors.green,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
+    shadowColor: 'rgba(0,0,0,0.9)',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 6,
   },
   addPlayerButtonText: {
-    color: '#fff',
+    color: colors.background,
     fontWeight: 'bold',
   },
 });

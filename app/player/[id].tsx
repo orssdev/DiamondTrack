@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { db } from '../../firebaseConfig';
 import Dropdown from '../components/Dropdown';
+import { colors } from '../theme/colors';
 
 interface League { id: string; name: string; country?: string }
 interface Team { id: string; leagueId: string; name: string; location?: string }
@@ -217,20 +218,20 @@ export default function PlayerScreen() {
     }
   };
 
-  if (loading) return <View style={styles.centered}><ActivityIndicator /></View>;
+  if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={colors.green} /></View>;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{padding: 20}}>
       <Text style={styles.title}>{mode === 'view' ? 'Player' : 'Edit Player'}</Text>
 
       <Text style={styles.label}>Player ID</Text>
-      <TextInput style={styles.input} value={player.id} onChangeText={(v) => setPlayer(p => ({...p, id: v}))} editable={mode === 'edit'} placeholderTextColor="#666" placeholder="unique id" />
+      <TextInput style={styles.input} value={player.id} onChangeText={(v) => setPlayer(p => ({...p, id: v}))} editable={mode === 'edit'} placeholderTextColor={colors.textMuted} placeholder="unique id" />
 
       <Text style={styles.label}>Name</Text>
-      <TextInput style={styles.input} value={player.name} onChangeText={(v) => setPlayer(p => ({...p, name: v}))} editable={mode === 'edit'} placeholderTextColor="#666" placeholder="Full name" />
+      <TextInput style={styles.input} value={player.name} onChangeText={(v) => setPlayer(p => ({...p, name: v}))} editable={mode === 'edit'} placeholderTextColor={colors.textMuted} placeholder="Full name" />
 
       <Text style={styles.label}>Number</Text>
-      <TextInput style={styles.input} value={String(player.number ?? '')} onChangeText={(v) => setPlayer(p => ({...p, number: Number(v)}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" placeholder="Jersey number" />
+      <TextInput style={styles.input} value={String(player.number ?? '')} onChangeText={(v) => setPlayer(p => ({...p, number: Number(v)}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} placeholder="Jersey number" />
 
       <Text style={styles.label}>Position</Text>
       <Dropdown
@@ -297,46 +298,46 @@ export default function PlayerScreen() {
 
       {}
       <Text style={styles.label}>Plate Appearances</Text>
-      <TextInput style={styles.input} value={statsEditable.plateAppearances} onChangeText={(v) => setStatsEditable(s => ({...s, plateAppearances: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+      <TextInput style={styles.input} value={statsEditable.plateAppearances} onChangeText={(v) => setStatsEditable(s => ({...s, plateAppearances: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
       <Text style={styles.label}>At Bats</Text>
-      <TextInput style={styles.input} value={statsEditable.atBats} onChangeText={(v) => setStatsEditable(s => ({...s, atBats: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+      <TextInput style={styles.input} value={statsEditable.atBats} onChangeText={(v) => setStatsEditable(s => ({...s, atBats: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
       <Text style={styles.label}>Hits</Text>
-      <TextInput style={styles.input} value={statsEditable.hits} onChangeText={(v) => setStatsEditable(s => ({...s, hits: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+      <TextInput style={styles.input} value={statsEditable.hits} onChangeText={(v) => setStatsEditable(s => ({...s, hits: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Doubles</Text>
-  <TextInput style={styles.input} value={statsEditable.doubles} onChangeText={(v) => setStatsEditable(s => ({...s, doubles: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.doubles} onChangeText={(v) => setStatsEditable(s => ({...s, doubles: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Triples</Text>
-  <TextInput style={styles.input} value={statsEditable.triples} onChangeText={(v) => setStatsEditable(s => ({...s, triples: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.triples} onChangeText={(v) => setStatsEditable(s => ({...s, triples: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Home Runs</Text>
-  <TextInput style={styles.input} value={statsEditable.homeRuns} onChangeText={(v) => setStatsEditable(s => ({...s, homeRuns: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.homeRuns} onChangeText={(v) => setStatsEditable(s => ({...s, homeRuns: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Walks</Text>
-  <TextInput style={styles.input} value={statsEditable.walks} onChangeText={(v) => setStatsEditable(s => ({...s, walks: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.walks} onChangeText={(v) => setStatsEditable(s => ({...s, walks: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Hit By Pitch</Text>
-  <TextInput style={styles.input} value={statsEditable.hitByPitch} onChangeText={(v) => setStatsEditable(s => ({...s, hitByPitch: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.hitByPitch} onChangeText={(v) => setStatsEditable(s => ({...s, hitByPitch: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Sacrifice Flies</Text>
-  <TextInput style={styles.input} value={statsEditable.sacFlies} onChangeText={(v) => setStatsEditable(s => ({...s, sacFlies: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.sacFlies} onChangeText={(v) => setStatsEditable(s => ({...s, sacFlies: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>RBI</Text>
-  <TextInput style={styles.input} value={statsEditable.rbis} onChangeText={(v) => setStatsEditable(s => ({...s, rbis: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.rbis} onChangeText={(v) => setStatsEditable(s => ({...s, rbis: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Stolen Bases</Text>
-  <TextInput style={styles.input} value={statsEditable.stolenBases} onChangeText={(v) => setStatsEditable(s => ({...s, stolenBases: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.stolenBases} onChangeText={(v) => setStatsEditable(s => ({...s, stolenBases: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Caught Stealing</Text>
-  <TextInput style={styles.input} value={statsEditable.caughtStealing} onChangeText={(v) => setStatsEditable(s => ({...s, caughtStealing: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.caughtStealing} onChangeText={(v) => setStatsEditable(s => ({...s, caughtStealing: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Strikeouts</Text>
-  <TextInput style={styles.input} value={statsEditable.strikeouts} onChangeText={(v) => setStatsEditable(s => ({...s, strikeouts: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.strikeouts} onChangeText={(v) => setStatsEditable(s => ({...s, strikeouts: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
   <Text style={styles.label}>Runs</Text>
-  <TextInput style={styles.input} value={statsEditable.runs} onChangeText={(v) => setStatsEditable(s => ({...s, runs: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor="#666" />
+  <TextInput style={styles.input} value={statsEditable.runs} onChangeText={(v) => setStatsEditable(s => ({...s, runs: v}))} keyboardType="numeric" editable={mode === 'edit'} placeholderTextColor={colors.textMuted} />
 
       <View style={{height: 16}} />
       {mode === 'edit' ? (
@@ -355,12 +356,59 @@ export default function PlayerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
-  label: { fontSize: 14, marginTop: 8 },
-  input: { height: 40, borderColor: '#ddd', borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, marginTop: 6 },
-  saveButton: { backgroundColor: '#007bff', paddingVertical: 10, borderRadius: 8, alignItems: 'center', marginTop: 12 },
-  saveButtonText: { color: '#fff', fontWeight: 'bold' },
-  readOnly: { color: '#333', fontSize: 16, marginTop: 4 },
+  container: { 
+    flex: 1, 
+    backgroundColor: colors.background 
+  },
+  centered: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    backgroundColor: colors.background 
+  },
+  title: { 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    marginBottom: 12,
+    color: colors.textPrimary 
+  },
+  label: { 
+    fontSize: 14, 
+    marginTop: 8,
+    color: colors.textSubtle 
+  },
+  input: { 
+    height: 40, 
+    borderColor: colors.borderSubtle, 
+    borderWidth: 1, 
+    borderRadius: 6, 
+    paddingHorizontal: 8, 
+    marginTop: 6,
+    color: colors.textPrimary,
+    backgroundColor: colors.surface 
+  },
+  saveButton: { 
+    backgroundColor: colors.surface, 
+    paddingVertical: 14, 
+    borderRadius: 8, 
+    alignItems: 'center', 
+    marginTop: 12,
+    shadowColor: 'rgba(0,0,0,0.9)',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: colors.green 
+  },
+  saveButtonText: { 
+    color: colors.green, 
+    fontWeight: '700',
+    fontSize: 16 
+  },
+  readOnly: { 
+    color: colors.textPrimary, 
+    fontSize: 16, 
+    marginTop: 4 
+  },
 });

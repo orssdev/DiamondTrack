@@ -8,15 +8,18 @@ import { on as onEvent, emit } from './utils/events';
 // Exported Fn: RootLayout
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen
-      name="start"
-      options={{
+    <Stack
+      screenOptions={{
         headerShown: true,
-        headerTitle: "Start Menu",
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.green,
         headerTitleStyle: { color: colors.textPrimary },
+      }}
+    >
+      <Stack.Screen
+      name="start"
+      options={{
+        headerTitle: "Start Menu",
         headerLeft: () => (
           <TouchableOpacity onPress={() => emit('openMenu','start')}> 
             <View style={styles.menuContainer}>
@@ -29,11 +32,7 @@ export default function RootLayout() {
       <Stack.Screen
         name="GameScreen"
         options={{
-          headerShown: true,
           headerTitle: "Game Screen",
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.green,
-          headerTitleStyle: { color: colors.textPrimary },
           headerLeft: () => (
             <TouchableOpacity onPress={() => emit('openMenu','game')}>
               <View style={styles.menuContainer}>
@@ -41,6 +40,18 @@ export default function RootLayout() {
               </View>
             </TouchableOpacity>
           ),
+        }}
+      />
+      <Stack.Screen
+        name="stats"
+        options={{
+          headerTitle: "Stats",
+        }}
+      />
+      <Stack.Screen
+        name="player/[id]"
+        options={{
+          headerTitle: "Player",
         }}
       />
     </Stack>
