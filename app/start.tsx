@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { onAuthStateChanged, signInAnonymously, signOut, User } from 'firebase/auth';
-import { onValue, ref } from 'firebase/database';
+import { onValue, ref, set } from 'firebase/database';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { auth, db } from '../firebaseConfig';
@@ -93,10 +93,17 @@ export default function StartScreen() {
 
     const teamsForLeague = (leagueId:string) => teams.filter(t => t.leagueId === leagueId);
 
-    const handleStart = () => {
+    const handleStart = async () => {
         if (!homeTeam || !awayTeam) {
             Alert.alert('Selection Required', 'Please select both home and away teams.');
             return;
+        }
+        try {
+            // reset current batter slots to 1 for both teams at game start
+            await set(ref(db, `Teams/${homeTeam}/currentBatSlot`), 1);
+            await set(ref(db, `Teams/${awayTeam}/currentBatSlot`), 1);
+        } catch (e) {
+            // ignore failures - navigation still proceeds
         }
         router.push({ pathname: '/GameScreen', params: { home: homeTeam, away: awayTeam } } as any);
     };

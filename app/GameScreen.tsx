@@ -18,7 +18,6 @@ import {
 import { db } from '../firebaseConfig';
 import StatsSheet from './components/StatsSheet';
 import { colors } from './theme/colors';
-import { on as onEvent } from './utils/events';
 
 const { width, height } = Dimensions.get("window");
 
@@ -158,6 +157,21 @@ export default function GameScreen() {
     const handleRestartGame = () => {
       // reset only the in-memory game state
       setHomeRuns(0); setAwayRuns(0); setInning(1); setIsTop(true); setBalls(0); setStrikes(0); setOuts(0); setRunners({ first:false, second:false, third:false });
+      // also reset persisted current batter slot for both teams so a restart behaves like a fresh game
+      try {
+        if (homeId) {
+          const hRef = ref(db, `Teams/${homeId}/currentBatSlot`);
+          set(hRef, 1);
+          setHomeCurrentBat(1);
+        }
+        if (awayId) {
+          const aRef = ref(db, `Teams/${awayId}/currentBatSlot`);
+          set(aRef, 1);
+          setAwayCurrentBat(1);
+        }
+      } catch (e) {
+        // ignore persistence errors for now
+      }
       setShowHeaderMenu(false);
     };
 
