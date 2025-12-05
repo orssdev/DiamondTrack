@@ -1,7 +1,6 @@
 // File: app/GameScreen.tsx
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { onValue, ref, get, set, update } from 'firebase/database';
-import { on as onEvent, emit } from './utils/events';
+import { get, onValue, ref, set, update } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,6 +18,7 @@ import {
 import { db } from '../firebaseConfig';
 import StatsSheet from './components/StatsSheet';
 import { colors } from './theme/colors';
+import { on as onEvent } from './utils/events';
 
 const { width, height } = Dimensions.get("window");
 
@@ -715,15 +715,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.borderSubtle,
   },
   countGroup: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    marginHorizontal: 16,
   },
   countLabel: {
     width: 18,
